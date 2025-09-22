@@ -58,7 +58,6 @@ export default function CreateGoalPage() {
   }
 
   const onChangeDate = (event: any, selectedDate?: Date) => {
-    console.log("Selected date:", selectedDate);
     const currentDate = selectedDate || formData.deadline;
     setFormData({ ...formData, deadline: currentDate });
     setShowDatePicker(false);

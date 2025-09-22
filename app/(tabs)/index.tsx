@@ -27,6 +27,10 @@ export default function HomePage() {
   const totalTarget = goals.reduce((sum, g) => sum + g.target, 0);
   const overallProgress = (totalSaved / totalTarget) * 100;
 
+  const addFoundsToGoal = (goalId: string | number) => {
+    router.push(`/goals/add-transaction/${goalId}`);
+  }
+
   return (
     <>
       <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
@@ -81,7 +85,7 @@ export default function HomePage() {
           ) : (
             <View className="space-y-3">
               {goals.map(goal => (
-                <GoalCard key={goal.id} goal={goal} onAddFunds={() => { }} />
+                <GoalCard key={goal.id} goal={goal} onAddFunds={addFoundsToGoal} />
               ))}
             </View>
           )}
