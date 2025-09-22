@@ -62,12 +62,6 @@ export default function TabLayout() {
             </View>
           ),
         }}
-        listeners={{
-          tabPress: (e) => {
-            e.preventDefault();
-            // router.push('/(modals)/goal-form');
-          },
-        }}
       />
 
       <Tabs.Screen

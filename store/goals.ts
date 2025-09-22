@@ -20,9 +20,9 @@ export type Goal = {
   description?: string;
   category?: GoalCategory;
 
-  createdAt: string;
-  updatedAt: string;
-  deadline?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  deadline?: Date;
   priority: "low" | "medium" | "high";
   notes?: string;
   transactions: GoalTransaction[];
@@ -57,9 +57,9 @@ export const useGoalsState = create<GoalsState>((set, get) => ({
       color: "from-purple-500 to-indigo-500",
       description: "Un viaggio dei sogni in Giappone.",
       category: { id: "travel", name: "Viaggi", emoji: "✈️", color: "blue" },
-      createdAt: new Date("2025-01-01").toISOString(),
-      updatedAt: new Date("2025-01-10").toISOString(),
-      deadline: new Date("2025-12-31").toISOString(),
+      createdAt: new Date("2025-01-01"),
+      updatedAt: new Date("2025-01-10"),
+      deadline: new Date("2025-12-31"),
       priority: "high",
       notes: "Controllare offerte voli e hotel.",
       transactions: [
@@ -77,9 +77,9 @@ export const useGoalsState = create<GoalsState>((set, get) => ({
       color: "from-pink-500 to-red-500",
       description: "Laptop per lavoro e sviluppo.",
       category: { id: "tech", name: "Tecnologia", emoji: "🖥️", color: "gray" },
-      createdAt: new Date("2025-02-01").toISOString(),
-      updatedAt: new Date("2025-02-15").toISOString(),
-      deadline: new Date("2025-06-01").toISOString(),
+      createdAt: new Date("2025-02-01"),
+      updatedAt: new Date("2025-02-15"),
+      deadline: new Date("2025-06-01"),
       priority: "medium",
       notes: "Aspettare eventuale uscita nuovo modello.",
       transactions: [
@@ -99,7 +99,7 @@ export const useGoalsState = create<GoalsState>((set, get) => ({
         };
       }
 
-      const now = new Date().toISOString();
+      const now = new Date();
 
       const newGoal: Goal = {
         id: Date.now(),
@@ -122,6 +122,9 @@ export const useGoalsState = create<GoalsState>((set, get) => ({
       set((state) => ({
         goals: [...state.goals, newGoal],
       }));
+
+      console.log("Obiettivo aggiunto:", newGoal);
+      console.log("Stato attuale obiettivi:", get().goals);
 
       return { success: true };
     } catch {
@@ -152,7 +155,7 @@ export const useGoalsState = create<GoalsState>((set, get) => ({
       const exists = get().goals.some((goal) => goal.id === id);
       if (!exists) return { success: false, error: "Obiettivo non trovato." };
 
-      const now = new Date().toISOString();
+      const now = new Date();
 
       set((state) => ({
         goals: state.goals.map((goal) =>

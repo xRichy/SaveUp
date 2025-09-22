@@ -3,7 +3,6 @@ import { useGoalsState } from "@/store/goals";
 import { useThemeStore } from "@/store/theme";
 import { format } from "date-fns";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { goBack } from "expo-router/build/global-state/routing";
 import { ChevronLeft } from "lucide-react-native";
 import React from "react";
 import { ScrollView, StatusBar, Text, TouchableOpacity, View } from "react-native";
