@@ -1,65 +1,151 @@
+// src/components/ui/GradientButton.tsx
+import React from "react";
+import {
+  Text,
+  TouchableOpacity,
+  TouchableOpacityProps,
+  ActivityIndicator,
+  StyleSheet,
+  ViewStyle,
+  TextStyle,
+  ColorValue,
+} from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { useThemeStore } from "@/store/theme";
 
-// =============================================================================
-// src/components/ui/GradientButton.tsx - Bottone con gradiente
-// =============================================================================
-import React from 'react';
-import { Text, TouchableOpacity, TouchableOpacityProps, View } from 'react-native';
+type GradientColors = readonly [ColorValue, ColorValue, ...ColorValue[]];
 
 interface GradientButtonProps extends TouchableOpacityProps {
   title: string;
-  variant?: 'primary' | 'secondary' | 'outline';
-  size?: 'sm' | 'md' | 'lg';
+  variant?: "primary" | "secondary" | "outline";
+  size?: "sm" | "md" | "lg";
   icon?: React.ReactNode;
   loading?: boolean;
+  style?: ViewStyle;
 }
+
+const GRADIENT_PRIMARY: GradientColors = ["#8B5CF6", "#EC4899"] as const;
+const GRADIENT_SECONDARY: GradientColors = ["#6B7280", "#374151"] as const;
+const GRADIENT_OUTLINE_DARK: GradientColors = ["#111827", "#111827"] as const;
+const GRADIENT_OUTLINE_LIGHT: GradientColors = ["#FFFFFF", "#FFFFFF"] as const;
 
 export const GradientButton: React.FC<GradientButtonProps> = ({
   title,
-  variant = 'primary',
-  size = 'md',
+  variant = "primary",
+  size = "md",
   icon,
   loading = false,
-  className = '',
+  style,
   ...props
 }) => {
-  const getVariantStyles = () => {
+  const { theme } = useThemeStore();
+  const isDark = theme === "dark";
+
+  const getGradientColors = (): GradientColors => {
     switch (variant) {
-      case 'secondary':
-        return 'bg-gradient-to-r from-gray-600 to-gray-700';
-      case 'outline':
-        return 'bg-transparent border-2 border-purple-500';
+      case "secondary":
+        return GRADIENT_SECONDARY;
+      case "outline":
+        return isDark ? GRADIENT_OUTLINE_DARK : GRADIENT_OUTLINE_LIGHT;
       default:
-        return 'bg-gradient-to-r from-purple-600 to-purple-700 shadow-lg shadow-purple-500/25';
+        return GRADIENT_PRIMARY;
     }
   };
 
-  const getSizeStyles = () => {
+  const getPadding = (): ViewStyle => {
     switch (size) {
-      case 'sm': return 'py-2 px-4';
-      case 'lg': return 'py-4 px-8';
-      default: return 'py-3 px-6';
+      case "sm":
+        return { paddingVertical: 8, paddingHorizontal: 14 };
+      case "lg":
+        return { paddingVertical: 16, paddingHorizontal: 28 };
+      default:
+        return { paddingVertical: 12, paddingHorizontal: 20 };
     }
   };
 
-  const getTextStyles = () => {
-    const baseStyles = variant === 'outline' ? 'text-purple-600' : 'text-white';
+  const getTextStyle = (): TextStyle => {
     switch (size) {
-      case 'sm': return `${baseStyles} text-sm font-semibold`;
-      case 'lg': return `${baseStyles} text-lg font-bold`;
-      default: return `${baseStyles} text-base font-semibold`;
+      case "sm":
+        return { fontSize: 14, fontWeight: "600" };
+      case "lg":
+        return { fontSize: 18, fontWeight: "700" };
+      default:
+        return { fontSize: 16, fontWeight: "600" };
     }
   };
 
+  // Outline variant: non usare gradient (si usa bordo e background adattivo)
+  if (variant === "outline") {
+    return (
+      <TouchableOpacity
+        activeOpacity={0.85}
+        disabled={loading}
+        style={[
+          styles.outlineContainer,
+          getPadding(),
+          { backgroundColor: isDark ? "#0f1720" : "#ffffff", borderColor: "#8B5CF6" },
+          style,
+        ]}
+        {...props}
+      >
+        {loading ? (
+          <ActivityIndicator color={isDark ? "#FFF" : "#8B5CF6"} />
+        ) : (
+          <>
+            {icon}
+            <Text style={[getTextStyle(), { color: "#8B5CF6", marginLeft: icon ? 8 : 0 }]}>
+              {title}
+            </Text>
+          </>
+        )}
+      </TouchableOpacity>
+    );
+  }
+
+  // Primary / Secondary: gradient background
   return (
-    <TouchableOpacity
-      className={`${getVariantStyles()} ${getSizeStyles()} rounded-xl flex-row items-center justify-center space-x-2 ${className}`}
-      disabled={loading}
-      {...props}
-    >
-      {icon && !loading && icon}
-      <Text className={getTextStyles()}>
-        {loading ? 'Caricamento...' : title}
-      </Text>
+    <TouchableOpacity activeOpacity={0.85} disabled={loading} style={style} {...props}>
+      <LinearGradient
+        colors={getGradientColors()}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={[styles.gradient, getPadding()]}
+      >
+        {loading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <>
+            {icon}
+            <Text style={[getTextStyle(), styles.whiteText, icon ? { marginLeft: 8 } : null]}>
+              {title}
+            </Text>
+          </>
+        )}
+      </LinearGradient>
     </TouchableOpacity>
   );
 };
+
+const styles = StyleSheet.create({
+  gradient: {
+    borderRadius: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.12,
+    shadowOffset: { width: 0, height: 6 },
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  outlineContainer: {
+    borderWidth: 2,
+    borderRadius: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  whiteText: {
+    color: "#fff",
+  },
+});

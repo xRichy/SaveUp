@@ -8,7 +8,7 @@ import * as SecureStore from "expo-secure-store";
 export type GoalTransaction = {
   id: string;
   amount: number; // positivo = deposito, negativo = prelievo
-  date: string;
+  date: Date;
   note?: string;
 };
 
