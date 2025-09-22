@@ -1,6 +1,8 @@
 // store/goals.ts
 
 import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
+import * as SecureStore from "expo-secure-store";
 
 // Singolo movimento di denaro associato all'obiettivo
 export type GoalTransaction = {
@@ -38,134 +40,247 @@ export type GoalCategory = {
 
 interface GoalsState {
   goals: Goal[];
+  isLoading: boolean;
   addGoal: (goal: Partial<Goal>) => { success: boolean; error?: string };
   removeGoal: (id: string | number) => { success: boolean; error?: string };
   updateGoal: (
     id: string | number,
     updated: Partial<Goal>
   ) => { success: boolean; error?: string };
+  addTransaction: (
+    goalId: string | number, 
+    transaction: Omit<GoalTransaction, 'id'>
+  ) => { success: boolean; error?: string };
+  removeTransaction: (
+    goalId: string | number, 
+    transactionId: string
+  ) => { success: boolean; error?: string };
 }
 
-export const useGoalsState = create<GoalsState>((set, get) => ({
-  goals: [
-    {
-      id: 1,
-      name: "Vacanza in Giappone",
-      target: 3000,
-      saved: 1250,
-      emoji: "🗾",
-      color: "from-purple-500 to-indigo-500",
-      description: "Un viaggio dei sogni in Giappone.",
-      category: { id: "travel", name: "Viaggi", emoji: "✈️", color: "blue" },
-      createdAt: new Date("2025-01-01"),
-      updatedAt: new Date("2025-01-10"),
-      deadline: new Date("2025-12-31"),
-      priority: "high",
-      notes: "Controllare offerte voli e hotel.",
-      transactions: [
-        { id: "t1", amount: 500, date: "2025-01-02", note: "Primo deposito" },
-        { id: "t2", amount: 750, date: "2025-01-08", note: "Bonus stipendio" },
-      ],
-      status: "active",
-    },
-    {
-      id: 2,
-      name: "Nuovo MacBook Pro",
-      target: 1500,
-      saved: 890,
-      emoji: "💻",
-      color: "from-pink-500 to-red-500",
-      description: "Laptop per lavoro e sviluppo.",
-      category: { id: "tech", name: "Tecnologia", emoji: "🖥️", color: "gray" },
-      createdAt: new Date("2025-02-01"),
-      updatedAt: new Date("2025-02-15"),
-      deadline: new Date("2025-06-01"),
-      priority: "medium",
-      notes: "Aspettare eventuale uscita nuovo modello.",
-      transactions: [
-        { id: "t3", amount: 400, date: "2025-02-05" },
-        { id: "t4", amount: 490, date: "2025-02-12" },
-      ],
-      status: "active",
-    },
-  ],
-
-  addGoal: (goal) => {
+// Adapter per SecureStore
+const secureStorage = {
+  getItem: async (name: string): Promise<string | null> => {
     try {
-      if (!goal.name || !goal.target || !goal.emoji) {
-        return {
-          success: false,
-          error: "Nome, target ed emoji sono obbligatori.",
+      return await SecureStore.getItemAsync(name);
+    } catch (error) {
+      console.error('Error getting item from SecureStore:', error);
+      return null;
+    }
+  },
+  
+  setItem: async (name: string, value: string): Promise<void> => {
+    try {
+      await SecureStore.setItemAsync(name, value);
+    } catch (error) {
+      console.error('Error setting item in SecureStore:', error);
+    }
+  },
+  
+  removeItem: async (name: string): Promise<void> => {
+    try {
+      await SecureStore.deleteItemAsync(name);
+    } catch (error) {
+      console.error('Error removing item from SecureStore:', error);
+    }
+  }
+};
+
+export const useGoalsState = create<GoalsState>()(
+  persist(
+    (set, get) => ({
+      goals: [],
+      isLoading: false,
+
+      addGoal: (goal) => {
+        try {
+          if (!goal.name || !goal.target || !goal.emoji) {
+            return {
+              success: false,
+              error: "Nome, target ed emoji sono obbligatori.",
+            };
+          }
+
+          const now = new Date();
+
+          const newGoal: Goal = {
+            id: Date.now(),
+            name: goal.name,
+            target: goal.target,
+            saved: goal.saved ?? 0,
+            emoji: goal.emoji,
+            color: goal.color ?? "from-purple-500 to-indigo-500",
+            description: goal.description ?? "",
+            category: goal.category,
+            createdAt: now,
+            updatedAt: now,
+            deadline: goal.deadline,
+            priority: goal.priority ?? "medium",
+            notes: goal.notes ?? "",
+            transactions: [],
+            status: "active",
+          };
+
+          set((state) => ({
+            goals: [...state.goals, newGoal],
+          }));
+
+          console.log("Obiettivo aggiunto:", newGoal);
+          console.log("Stato attuale obiettivi:", get().goals);
+
+          return { success: true };
+        } catch {
+          return {
+            success: false,
+            error: "Errore durante l'aggiunta dell'obiettivo.",
+          };
+        }
+      },
+
+      removeGoal: (id) => {
+        try {
+          const exists = get().goals.some((goal) => goal.id === id);
+          if (!exists) return { success: false, error: "Obiettivo non trovato." };
+
+          set((state) => ({
+            goals: state.goals.filter((goal) => goal.id !== id),
+          }));
+
+          return { success: true };
+        } catch {
+          return { success: false, error: "Errore durante la rimozione." };
+        }
+      },
+
+      updateGoal: (id, updated) => {
+        try {
+          const exists = get().goals.some((goal) => goal.id === id);
+          if (!exists) return { success: false, error: "Obiettivo non trovato." };
+
+          const now = new Date();
+
+          set((state) => ({
+            goals: state.goals.map((goal) =>
+              goal.id === id ? { ...goal, ...updated, updatedAt: now } : goal
+            ),
+          }));
+
+          return { success: true };
+        } catch {
+          return { success: false, error: "Errore durante l'aggiornamento." };
+        }
+      },
+
+      addTransaction: (goalId, transaction) => {
+        try {
+          const goal = get().goals.find((goal) => goal.id === goalId);
+          if (!goal) return { success: false, error: "Obiettivo non trovato." };
+
+          const newTransaction: GoalTransaction = {
+            ...transaction,
+            id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
+          };
+
+          const newSaved = goal.saved + transaction.amount;
+          
+          set((state) => ({
+            goals: state.goals.map((goal) =>
+              goal.id === goalId
+                ? {
+                    ...goal,
+                    saved: newSaved,
+                    transactions: [...goal.transactions, newTransaction],
+                    updatedAt: new Date(),
+                    status: newSaved >= goal.target ? "completed" : goal.status,
+                  }
+                : goal
+            ),
+          }));
+
+          return { success: true };
+        } catch {
+          return {
+            success: false,
+            error: "Errore durante l'aggiunta della transazione.",
+          };
+        }
+      },
+
+      removeTransaction: (goalId, transactionId) => {
+        try {
+          const goal = get().goals.find((goal) => goal.id === goalId);
+          if (!goal) return { success: false, error: "Obiettivo non trovato." };
+
+          const transaction = goal.transactions.find((t) => t.id === transactionId);
+          if (!transaction) return { success: false, error: "Transazione non trovata." };
+
+          const newSaved = goal.saved - transaction.amount;
+
+          set((state) => ({
+            goals: state.goals.map((goal) =>
+              goal.id === goalId
+                ? {
+                    ...goal,
+                    saved: newSaved,
+                    transactions: goal.transactions.filter((t) => t.id !== transactionId),
+                    updatedAt: new Date(),
+                    status: newSaved < goal.target && goal.status === "completed" 
+                      ? "active" 
+                      : goal.status,
+                  }
+                : goal
+            ),
+          }));
+
+          return { success: true };
+        } catch {
+          return {
+            success: false,
+            error: "Errore durante la rimozione della transazione.",
+          };
+        }
+      },
+    }),
+    {
+      name: 'goals-storage', // nome della chiave nel SecureStore
+      storage: createJSONStorage(() => secureStorage),
+      
+      // Persisti solo i dati importanti
+      partialize: (state) => ({
+        goals: state.goals,
+        // Non persistiamo isLoading perché è uno stato temporaneo
+      }),
+
+      // Callback per quando i dati vengono caricati
+      onRehydrateStorage: (state) => {
+        return (state, error) => {
+          if (error) {
+            console.error('Errore nel caricamento dati dal SecureStore:', error);
+          } else {
+            console.log('Dati caricati con successo dal SecureStore');
+            console.log('Goals caricati:', state?.goals?.length || 0);
+          }
         };
-      }
+      },
 
-      const now = new Date();
+      // Versioning per gestire migrazioni future
+      version: 1,
 
-      const newGoal: Goal = {
-        id: Date.now(),
-        name: goal.name,
-        target: goal.target,
-        saved: goal.saved ?? 0,
-        emoji: goal.emoji,
-        color: goal.color ?? "from-purple-500 to-indigo-500",
-        description: goal.description ?? "",
-        category: goal.category,
-        createdAt: now,
-        updatedAt: now,
-        deadline: goal.deadline,
-        priority: goal.priority ?? "medium",
-        notes: goal.notes ?? "",
-        transactions: [],
-        status: "active",
-      };
-
-      set((state) => ({
-        goals: [...state.goals, newGoal],
-      }));
-
-      console.log("Obiettivo aggiunto:", newGoal);
-      console.log("Stato attuale obiettivi:", get().goals);
-
-      return { success: true };
-    } catch {
-      return {
-        success: false,
-        error: "Errore durante l'aggiunta dell'obiettivo.",
-      };
+      // Migrazione per versioni future (opzionale)
+      migrate: (persistedState: any, version: number) => {
+        if (version === 0) {
+          // Migrazione da versione 0 a 1
+          // Esempio: aggiungere nuovi campi ai goals esistenti
+          return {
+            ...persistedState,
+            goals: persistedState.goals?.map((goal: any) => ({
+              ...goal,
+              // Aggiungi nuovi campi se necessario
+              status: goal.status || 'active',
+            })) || [],
+          };
+        }
+        return persistedState;
+      },
     }
-  },
-
-  removeGoal: (id) => {
-    try {
-      const exists = get().goals.some((goal) => goal.id === id);
-      if (!exists) return { success: false, error: "Obiettivo non trovato." };
-
-      set((state) => ({
-        goals: state.goals.filter((goal) => goal.id !== id),
-      }));
-
-      return { success: true };
-    } catch {
-      return { success: false, error: "Errore durante la rimozione." };
-    }
-  },
-
-  updateGoal: (id, updated) => {
-    try {
-      const exists = get().goals.some((goal) => goal.id === id);
-      if (!exists) return { success: false, error: "Obiettivo non trovato." };
-
-      const now = new Date();
-
-      set((state) => ({
-        goals: state.goals.map((goal) =>
-          goal.id === id ? { ...goal, ...updated, updatedAt: now } : goal
-        ),
-      }));
-
-      return { success: true };
-    } catch {
-      return { success: false, error: "Errore durante l'aggiornamento." };
-    }
-  },
-}));
+  )
+);
