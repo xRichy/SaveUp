@@ -18,7 +18,7 @@ export default function HomePage() {
   const isDark = theme === 'dark';
   const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'year'>('month');
 
-  const {goals, addGoal} = useGoalsState();
+  const { goals, addGoal } = useGoalsState();
 
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(amount);
@@ -47,13 +47,19 @@ export default function HomePage() {
           </View>
 
           {/* Totali */}
-          <Card className="mb-6">
+          <Card className={`mb-6 `}>
             <Text className={`text-sm ${isDark ? "text-gray-400" : "text-gray-500"}`}>
               Totale risparmiato
             </Text>
-            <Text className={`text-3xl font-bold ${isDark ? "text-white" : "text-gray-900"} mb-2`}>
-              {formatCurrency(totalSaved)}
-            </Text>
+            <View className="flex-row justify-between items-baseline mb-3">
+              <Text className={`text-3xl font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
+                {formatCurrency(totalSaved)}
+              </Text>
+              <Text className={`${isDark ? "text-gray-400" : "text-gray-500"}`}>
+                di {formatCurrency(totalTarget)}
+              </Text>
+            </View>
+
             <ProgressBar progress={overallProgress} height={8} />
           </Card>
 
@@ -62,9 +68,6 @@ export default function HomePage() {
             <Text className={`text-lg font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>
               Obiettivi
             </Text>
-            <TouchableOpacity onPress={() => router.push('/goals/create')}>
-              <Text className="text-purple-600 font-medium">Nuovo</Text>
-            </TouchableOpacity>
           </View>
 
           {goals.length === 0 ? (
@@ -78,17 +81,12 @@ export default function HomePage() {
           ) : (
             <View className="space-y-3">
               {goals.map(goal => (
-                <GoalCard key={goal.id} goal={goal} onAddFunds={() => {}} />
+                <GoalCard key={goal.id} goal={goal} onAddFunds={() => { }} />
               ))}
             </View>
           )}
         </ScrollView>
 
-        {/* Floating button */}
-        <FloatingActionButton
-          icon={<Plus size={28} color="#fff" />}
-          onPress={() => router.push('/goals/create')}
-        />
       </SafeAreaView>
     </>
   );

@@ -195,7 +195,7 @@ export default function CreateGoalPage() {
               >
                 <Text className="text-gray-500 mr-2">€</Text>
                 <TextInput
-                  className={` ${isDark ? "text-white" : "text-gray-900"
+                  className={`w-full ${isDark ? "text-white" : "text-gray-900"
                     }`}
                   placeholder="0"
                   placeholderTextColor={isDark ? "#9CA3AF" : "#9CA3AF"}
