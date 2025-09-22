@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
-import { View, Text, Switch, useColorScheme } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useThemeStore } from '@/store/theme';
+import React, { useEffect } from 'react';
+import { Switch, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function SettingsPage() {
   const { theme, toggleTheme, setTheme } = useThemeStore();
@@ -22,16 +22,17 @@ export default function SettingsPage() {
         </Text>
 
         {/* Sezione Tema */}
-        <View className="flex-row items-center justify-between bg-white/90 dark:bg-gray-800 rounded-2xl px-4 py-4 shadow-sm">
-          <Text className={`text-base font-medium ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>
+        <View className={`flex-row items-center justify-between ${theme === "dark" ? 'bg-gray-800' : 'bg-gray-200'} rounded-2xl px-4 py-4 shadow-sm`}>
+          <Text className={`text-base font-medium ${theme === "dark" ? 'text-gray-200' : 'text-gray-800'}`}>
             Dark Mode
           </Text>
-          <Switch
-            value={isDark}
-            onValueChange={toggleTheme}
-            trackColor={{ false: '#D1D5DB', true: '#8B5CF6' }}
-            thumbColor={isDark ? '#A78BFA' : '#F9FAFB'}
-          />
+          <TouchableOpacity
+            onPress={toggleTheme}
+            className={`rounded-full px-3 py-1 ${theme === "dark" ? 'bg-gray-600' : 'bg-gray-500'}`}
+          >
+            <Text className="text-lg">{theme === "dark" ? "🌙" : "☀️"}</Text>
+          </TouchableOpacity>
+
         </View>
       </View>
     </SafeAreaView>
