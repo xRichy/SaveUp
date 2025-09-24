@@ -1,3 +1,4 @@
+import NotificationButton from '@/components/notifications/NotificationButton';
 import React from 'react';
 import { View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -11,6 +12,7 @@ export default function StatsPage() {
           Qui vedrai grafici e statistiche dettagliate sui tuoi risparmi.
           Questa pagina sarà implementata nella prossima fase.
         </Text>
+        <NotificationButton />
       </View>
     </SafeAreaView>
   );

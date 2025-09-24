@@ -1,3 +1,4 @@
+import { Card } from "@/components/ui/Card";
 import { GradientButton } from "@/components/ui/GradientButton";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { useGoalsState } from "@/store/goals";
@@ -15,6 +16,7 @@ export default function GoalDetail() {
   const { goals } = useGoalsState();
   const { theme } = useThemeStore();
 
+  const isDark = theme === 'dark';
 
   const addFoundsToGoal = () => {
     router.push(`/goals/add-transaction/${id}`);
@@ -71,7 +73,7 @@ export default function GoalDetail() {
           </View>
 
           {/* Card principale */}
-          <View className="p-6 rounded-2xl bg-gradient-to-r from-purple-500 to-indigo-500 mb-6">
+          <Card className={`mb-6 `}>
             <Text className={`text-8xl ${colors.text} opacity-90 mb-1 text-center p-4`}>{goal.emoji}</Text>
             <Text className={`text-4xl font-bold ${colors.text} mb-2`}>
               {goal.name}
@@ -84,7 +86,7 @@ export default function GoalDetail() {
             <Text className={`mt-3 text-sm ${colors.text} font-medium`}>
               Risparmiati: {goal.saved}€ / {goal.target}€
             </Text>
-          </View>
+          </Card>
 
           {goal.status !== 'completed' ? (
             <View className="flex-row gap-3 mb-6">
