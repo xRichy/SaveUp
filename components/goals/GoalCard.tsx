@@ -45,7 +45,7 @@ export const GoalCard: React.FC<GoalCardProps> = ({ goal, onAddFunds }) => {
 
   return (
     <TouchableOpacity onPress={() => router.push(`/goals/${goal.id}`)} className="mb-4">
-      <Card variant="elevated" className="overflow-hidden">
+      <Card >
         {/* Header */}
         <View className="flex-row items-center mb-4">
           <View className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${goal.color} items-center justify-center shadow-md`}>

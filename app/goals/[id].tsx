@@ -1,3 +1,4 @@
+import { GradientButton } from "@/components/ui/GradientButton";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { useGoalsState } from "@/store/goals";
 import { useThemeStore } from "@/store/theme";
@@ -13,6 +14,11 @@ export default function GoalDetail() {
   const router = useRouter();
   const { goals } = useGoalsState();
   const { theme } = useThemeStore();
+
+
+  const addFoundsToGoal = () => {
+    router.push(`/goals/add-transaction/${id}`);
+  }
 
   const goal = goals.find((g) => g.id.toString() === id);
 
@@ -58,7 +64,7 @@ export default function GoalDetail() {
           {/* Header */}
           <View className="flex-row items-center justify-between py-4">
             <TouchableOpacity onPress={() => router.back()}>
-              <ChevronLeft color={colors.goBackButton} size={35}/>
+              <ChevronLeft color={colors.goBackButton} size={35} />
             </TouchableOpacity>
             <Text className={`text-xl font-semibold ${colors.text}`}>Dettagli obiettivo</Text>
             <View className="w-6" />
@@ -68,7 +74,7 @@ export default function GoalDetail() {
           <View className="p-6 rounded-2xl bg-gradient-to-r from-purple-500 to-indigo-500 mb-6">
             <Text className={`text-8xl ${colors.text} opacity-90 mb-1 text-center p-4`}>{goal.emoji}</Text>
             <Text className={`text-4xl font-bold ${colors.text} mb-2`}>
-               {goal.name}
+              {goal.name}
             </Text>
             <Text className={`${colors.text} opacity-90 mb-4`}>
               {goal.description || "Nessuna descrizione"}
@@ -79,6 +85,16 @@ export default function GoalDetail() {
               Risparmiati: {goal.saved}€ / {goal.target}€
             </Text>
           </View>
+
+          {goal.status !== 'completed' ? (
+            <View className="flex-row gap-3 mb-6">
+              <GradientButton
+                title="+ Aggiungi Fondi"
+                onPress={addFoundsToGoal}
+                className="w-full"
+              />
+            </View>
+          ) : null}
 
           {/* Info veloci */}
           <View className="flex-row gap-3 mb-6">
@@ -118,18 +134,25 @@ export default function GoalDetail() {
             </View>
           ) : null}
 
+
+
           {/* Storico transazioni */}
           {goal.transactions.length > 0 && (
             <View className={`p-4 rounded-2xl ${colors.card}`}>
               <Text className={`text-sm mb-3 ${colors.mutedText}`}>Storico movimenti</Text>
               {goal.transactions.map((t) => (
-                <View key={t.id} className={`flex-row justify-between py-2 border-b ${colors.border} last:border-0`}>
-                  <Text className={`text-base ${t.amount >= 0 ? "text-green-500" : "text-red-500"}`}>
-                    {t.amount >= 0 ? `+${t.amount}€` : `${t.amount}€`}
-                  </Text>
-                  <Text className={`text-sm ${colors.mutedText}`}>
-                    {format(new Date(t.date), "dd MMM")}
-                  </Text>
+                <View key={t.id} className={`flex-col justify-between py-2 border-b ${colors.border} last:border-0`}>
+                  <View className="w-full flex-row justify-between py-2">
+                    <Text className={`text-base ${t.amount >= 0 ? "text-green-500" : "text-red-500"}`}>
+                      {t.amount >= 0 ? `+${t.amount}€` : `${t.amount}€`}
+                    </Text>
+                    <Text className={`text-sm ${colors.mutedText}`}>
+                      {format(new Date(t.date), "dd MMM")}
+                    </Text>
+                  </View>
+                  <View className="w-full">
+                    <Text className={`text-sm ${colors.text} opacity-90`}>{t.note || "Nessuna nota"}</Text>
+                  </View>
                 </View>
               ))}
             </View>
