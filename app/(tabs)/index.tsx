@@ -1,19 +1,24 @@
+// app/(tabs)/index.tsx
+
 import { router } from 'expo-router';
-import { Plus, Target } from 'lucide-react-native';
 import React, { useState } from 'react';
-import { ScrollView, StatusBar, Text, TouchableOpacity, View, useColorScheme } from 'react-native';
+import { ScrollView, StatusBar, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { GoalCard } from '@/components/goals/GoalCard';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { FloatingActionButton } from '@/components/ui/FloatingActionButton';
 import { ProgressBar } from '@/components/ui/ProgressBar';
-import { useThemeStore } from '@/store/theme';
 import { useGoalsState } from '@/store/goals';
+import { useThemeStore } from '@/store/theme';
+import { useAuthStore } from '@/store/auth';
 
 export default function HomePage() {
   const { theme } = useThemeStore();
+
+  const {user} = useAuthStore();
+
+  const [name, setName] = useState(user ? user.name : '👋');
 
   const isDark = theme === 'dark';
   const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'year'>('month');
@@ -43,7 +48,7 @@ export default function HomePage() {
           {/* Header semplice */}
           <View className="mb-6">
             <Text className={`text-xl font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>
-              Ciao 👋
+              Ciao {name}!
             </Text>
             <Text className={`text-2xl font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
               I tuoi risparmi

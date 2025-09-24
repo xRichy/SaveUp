@@ -32,7 +32,7 @@ export const Card: React.FC<CardProps> = ({
 
   return (
     <View 
-      className={`rounded-2xl ${isDark ? 'bg-gray-800' : 'bg-gray-100'} shadow-sm ${getPaddingStyles()} ${className}`}
+      className={`rounded-2xl ${isDark ? 'bg-zinc-800 border-zinc-700' : 'bg-gray-100'} shadow-sm ${getPaddingStyles()} ${className}`}
       {...props}
     >
       {children}

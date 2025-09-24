@@ -1,8 +1,8 @@
 // app/(tab)/_layout.tsx
-import { Tabs } from 'expo-router';
-import { View } from 'react-native';
-import { Home, BarChart3, User, Plus, Settings } from 'lucide-react-native';
 import { useThemeStore } from '@/store/theme';
+import { Tabs } from 'expo-router';
+import { BarChart3, Home, Plus, Settings, User } from 'lucide-react-native';
+import { View } from 'react-native';
 
 export default function TabLayout() {
   const { theme } = useThemeStore();
@@ -14,7 +14,7 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: isDark ? '#111827' : '#FFFFFF',
+          backgroundColor: isDark ? '#18181b' : '#FFFFFF',
           borderTopWidth: 1,
           borderTopColor: isDark ? '#374151' : '#E5E7EB',
           paddingBottom: 8,
