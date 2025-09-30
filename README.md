@@ -1,50 +1,70 @@
-# Welcome to your Expo app 👋
+# SaveUp
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+SaveUp è un'applicazione mobile per la gestione degli obiettivi di risparmio personale, sviluppata con Expo, React Native e TypeScript.
 
-## Get started
+## Funzionalità principali
 
-1. Install dependencies
+- Creazione e gestione di obiettivi di risparmio
+- Visualizzazione delle statistiche di progresso
+- Notifiche e reminder
+- Interfaccia moderna con supporto tema chiaro/scuro
+- Storico delle transazioni per ogni obiettivo
+- Navigazione a tab e modali
+- Animazioni e icone personalizzate
 
-   ```bash
-   npm install
-   ```
+## Struttura del progetto
 
-2. Start the app
+- `app/` — Routing e pagine principali (tab, modali, auth, obiettivi)
+- `components/` — Componenti UI riutilizzabili (Card, Button, StatCard, GoalCard, ecc.)
+- `services/` — Servizi come notifiche
+- `store/` — Gestione stato globale con Zustand
+- `assets/` — Immagini e icone
 
-   ```bash
-   npx expo start
-   ```
+## Stack tecnologico
 
-In the output, you'll find options to open the app in a
+- **React Native** (Expo)
+- **TypeScript**
+- **Zustand** per lo stato globale
+- **Tailwind CSS** (NativeWind) per lo styling
+- **Expo Router** per la navigazione
+- **Lucide Icons** per le icone
+- **Date-fns** per la gestione delle date
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Avvio rapido
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+1. Installa le dipendenze:
+	```sh
+	npm install
+	```
+2. Avvia l'app in modalità sviluppo:
+	```sh
+	npm start
+	```
+	Oppure:
+	```sh
+	npm run android
+	npm run ios
+	npm run web
+	```
 
-## Get a fresh project
+## Script utili
 
-When you're ready, run:
+- `npm run lint` — Analizza il codice con ESLint
+- `npm run reset-project` — Resetta la configurazione del progetto
 
-```bash
-npm run reset-project
-```
+## Configurazione
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+- Modifica i file di configurazione (`app.json`, `babel.config.js`, `tailwind.config.js`, ecc.) secondo le tue esigenze.
+- Le variabili d'ambiente possono essere gestite tramite `expo-env.d.ts` e `nativewind-env.d.ts`.
 
-## Learn more
+## Contribuire
 
-To learn more about developing your project with Expo, look at the following resources:
+1. Forka il repository
+2. Crea un branch (`git checkout -b feature/nuova-funzionalità`)
+3. Fai commit delle modifiche (`git commit -am 'Aggiunta nuova funzionalità'`)
+4. Push sul branch (`git push origin feature/nuova-funzionalità`)
+5. Apri una Pull Request
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Licenza
 
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Questo progetto è privato.

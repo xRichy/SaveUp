@@ -115,9 +115,8 @@ export default function HomePage() {
           contentContainerStyle={{ paddingBottom: 80 }}
           className="px-4"
         >
-          {/* Header con gradiente */}
-          <GradientButton onPress={toggleTheme} title={'++++'} />
 
+          {/* Header con gradiente */}
           <Card className="mt-4 mb-6 p-0 rounded-3xl overflow-hidden shadow-lg">
             <LinearGradient
               colors={isDark
@@ -126,7 +125,7 @@ export default function HomePage() {
               }
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
-              className="p-6"
+              className=""
             >
 
               <View className='p-4'>
