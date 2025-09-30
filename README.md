@@ -30,6 +30,9 @@ SaveUp è un'applicazione mobile per la gestione degli obiettivi di risparmio pe
 - **Lucide Icons** per le icone
 - **Date-fns** per la gestione delle date
 
+## Informazioni aggiuntive
+La schermata delle impostazioni è solo un esempio grafico e gli unici pulsanti che effettivamente funzionano sono il cambio tema, Logout ed Eliminazione dell'account
+
 ## Avvio rapido
 
 1. Installa le dipendenze:
