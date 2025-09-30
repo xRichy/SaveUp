@@ -16,7 +16,7 @@ SaveUp è un'applicazione mobile per la gestione degli obiettivi di risparmio pe
 
 - `app/` — Routing e pagine principali (tab, modali, auth, obiettivi)
 - `components/` — Componenti UI riutilizzabili (Card, Button, StatCard, GoalCard, ecc.)
-- `services/` — Servizi come notifiche
+- `services/` — Servizi come notifiche (*Ancora WIP*)
 - `store/` — Gestione stato globale con Zustand
 - `assets/` — Immagini e icone
 
