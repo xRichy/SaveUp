@@ -6,7 +6,7 @@ SaveUp è un'applicazione mobile per la gestione degli obiettivi di risparmio pe
 
 - Creazione e gestione di obiettivi di risparmio
 - Visualizzazione delle statistiche di progresso
-- Notifiche e reminder
+- Notifiche e reminder *(WIP)
 - Interfaccia moderna con supporto tema chiaro/scuro
 - Storico delle transazioni per ogni obiettivo
 - Navigazione a tab e modali
@@ -51,20 +51,3 @@ SaveUp è un'applicazione mobile per la gestione degli obiettivi di risparmio pe
 
 - `npm run lint` — Analizza il codice con ESLint
 - `npm run reset-project` — Resetta la configurazione del progetto
-
-## Configurazione
-
-- Modifica i file di configurazione (`app.json`, `babel.config.js`, `tailwind.config.js`, ecc.) secondo le tue esigenze.
-- Le variabili d'ambiente possono essere gestite tramite `expo-env.d.ts` e `nativewind-env.d.ts`.
-
-## Contribuire
-
-1. Forka il repository
-2. Crea un branch (`git checkout -b feature/nuova-funzionalità`)
-3. Fai commit delle modifiche (`git commit -am 'Aggiunta nuova funzionalità'`)
-4. Push sul branch (`git push origin feature/nuova-funzionalità`)
-5. Apri una Pull Request
-
-## Licenza
-
-Questo progetto è privato.
