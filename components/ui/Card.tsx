@@ -26,7 +26,7 @@ export const Card: React.FC<CardProps> = ({
     switch (padding) {
       case 'sm': return 'p-4';
       case 'lg': return 'p-8';
-      default: return 'p-6';
+      default: return 'p-0';
     }
   };
 

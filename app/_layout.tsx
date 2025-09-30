@@ -42,7 +42,7 @@ export default function RootLayout() {
       
       setIsNavigationReady(true);
       SplashScreen.hideAsync();
-    }, 100);
+    }, 1000);
 
     return () => clearTimeout(timer);
   }, [hasHydrated, isAuthenticated, segments]);

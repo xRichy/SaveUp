@@ -158,7 +158,7 @@ export default function ProfileScreen() {
   const MenuCard: React.FC<MenuCardProps> = ({ icon: Icon, title, subtitle, onPress, showArrow = true, danger = false }) => (
     <TouchableOpacity
       onPress={onPress}
-      className={`mx-4 mb-3 p-4 rounded-2xl flex-row items-center ${isDark ? 'bg-zinc-900' : 'bg-white'
+      className={`mx-1 mb-3 p-4 rounded-2xl flex-row items-center ${isDark ? 'bg-zinc-900' : 'bg-white'
         } shadow-sm`}
       style={{
         shadowColor: isDark ? '#000' : '#000',
@@ -219,13 +219,14 @@ export default function ProfileScreen() {
         backgroundColor={isDark ? '#111827' : '#F9FAFB'}
       />
 
-      <SafeAreaView className={`flex-1 ${isDark ? "bg-black" : "bg-white"}`}>
+      <SafeAreaView className={`flex-1 ${isDark ? "bg-black" : "bg-white"}`} edges={['top']}>
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 100 }}
+          className="px-4"
         >
           {/* Header con gradiente */}
-          <Card className={`m-6 p-0 rounded-3xl overflow-hidden shadow-lg`}>
+          <Card className="mt-4 mb-6 p-0 rounded-3xl overflow-hidden shadow-lg">
             <LinearGradient
               colors={isDark
                 ? ['#7C3AED', '#3B82F6']
@@ -233,7 +234,7 @@ export default function ProfileScreen() {
               }
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
-              className="px-6 pt-8 pb-12 mb-9 p-3"
+              className="p-6"
             >
               <View className="flex-row justify-between items-center mb-8 p-3">
                 <Text className="text-2xl font-bold text-white">Il Mio Profilo</Text>
@@ -246,7 +247,7 @@ export default function ProfileScreen() {
                     <Edit3 size={20} color="white" />
                   </TouchableOpacity>
                 ) : (
-                  <View className="flex-row space-x-2">
+                  <View className="flex-row space-x-2 gap-1">
                     <TouchableOpacity
                       onPress={handleCancel}
                       className="bg-red-500/80 p-2 rounded-xl"
@@ -360,54 +361,9 @@ export default function ProfileScreen() {
           )}
 
 
-
-          {/* Stats Card */}
-          <View className={`mx-4 mt-6 p-4 rounded-2xl ${isDark ? 'bg-zinc-900' : 'bg-white'
-            } shadow-sm`}>
-            <Text className={`text-lg font-semibold mb-4 ${isDark ? 'text-white' : 'text-gray-900'
-              }`}>
-              Le tue statistiche
-            </Text>
-
-            <View className="flex-row justify-around">
-              <View className="items-center">
-                <Text className={`text-2xl font-bold ${isDark ? 'text-purple-400' : 'text-purple-600'
-                  }`}>
-                  12
-                </Text>
-                <Text className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'
-                  }`}>
-                  Obiettivi
-                </Text>
-              </View>
-
-              <View className="items-center">
-                <Text className={`text-2xl font-bold ${isDark ? 'text-green-400' : 'text-green-600'
-                  }`}>
-                  8
-                </Text>
-                <Text className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'
-                  }`}>
-                  Completati
-                </Text>
-              </View>
-
-              <View className="items-center">
-                <Text className={`text-2xl font-bold ${isDark ? 'text-blue-400' : 'text-blue-600'
-                  }`}>
-                  €2.450
-                </Text>
-                <Text className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'
-                  }`}>
-                  Risparmiati
-                </Text>
-              </View>
-            </View>
-          </View>
-
           {/* Profile Actions */}
           <View className="px-0 mt-3">
-            <Text className={`text-lg font-semibold mb-4 mx-4 ${isDark ? 'text-white' : 'text-gray-900'
+            <Text className={`text-lg font-semibold mb-4 ${isDark ? 'text-white' : 'text-gray-900'
               }`}>
               Account
             </Text>
@@ -421,7 +377,7 @@ export default function ProfileScreen() {
           </View>
 
           {/* Account info */}
-          <View className={`mx-4 p-4 rounded-2xl ${isDark ? 'bg-zinc-900' : 'bg-white'
+          <View className={`mx-1 p-4 rounded-2xl ${isDark ? 'bg-zinc-900' : 'bg-white'
             } shadow-sm`}>
             <Text className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'
               } text-center`}>

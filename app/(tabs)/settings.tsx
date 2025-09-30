@@ -1,22 +1,22 @@
-import { useThemeStore } from '@/store/theme';
 import { useAuthStore } from '@/store/auth';
+import { useThemeStore } from '@/store/theme';
 import React, { useEffect, useState } from 'react';
-import { 
-  Switch, 
-  Text, 
-  TouchableOpacity, 
-  useColorScheme, 
-  View, 
-  Alert, 
-  Share,
+import {
+  Alert,
   Linking,
+  Platform,
   ScrollView,
-  Platform
+  Share,
+  Switch,
+  Text,
+  TouchableOpacity,
+  useColorScheme,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function SettingsPage() {
-  const { theme, toggleTheme, setTheme } = useThemeStore();
+  const { theme, toggleTheme } = useThemeStore();
   const { logout, user } = useAuthStore();
   const systemScheme = useColorScheme();
   const isDark = theme === 'dark';
@@ -26,12 +26,6 @@ export default function SettingsPage() {
   const [biometricsEnabled, setBiometricsEnabled] = useState(false);
   const [autoBackup, setAutoBackup] = useState(true);
   const [analyticsEnabled, setAnalyticsEnabled] = useState(false);
-
-  useEffect(() => {
-    if (systemScheme) {
-      setTheme(systemScheme);
-    }
-  }, [systemScheme]);
 
   const handleLogout = () => {
     Alert.alert(
@@ -203,7 +197,7 @@ export default function SettingsPage() {
   );
 
   return (
-    <SafeAreaView className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}>
+    <SafeAreaView className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`} edges={['top']}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View className="px-6 py-6">
           <Text className={`text-2xl font-bold mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}>
