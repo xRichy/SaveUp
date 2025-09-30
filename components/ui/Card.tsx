@@ -21,34 +21,18 @@ export const Card: React.FC<CardProps> = ({
   const { theme } = useThemeStore();
   const isDark = theme === 'dark';
 
-  const getVariantStyles = () => {
-    switch (variant) {
-      case 'elevated':
-        return isDark
-          ? 'bg-gray-900 border border-gray-800 shadow-md'
-          : 'bg-white border border-gray-100 shadow-md';
-      case 'glass':
-        return isDark
-          ? 'bg-gray-800/70 backdrop-blur-xl border border-gray-700'
-          : 'bg-white/80 backdrop-blur-xl border border-gray-200';
-      default:
-        return isDark
-          ? 'bg-gray-900 border border-gray-800'
-          : 'bg-white border border-gray-100';
-    }
-  };
 
   const getPaddingStyles = () => {
     switch (padding) {
       case 'sm': return 'p-4';
       case 'lg': return 'p-8';
-      default: return 'p-6';
+      default: return 'p-0';
     }
   };
 
   return (
     <View 
-      className={`rounded-2xl ${getVariantStyles()} ${getPaddingStyles()} ${className}`}
+      className={`rounded-2xl ${isDark ? 'bg-zinc-800 border-zinc-700' : 'bg-gray-100'} shadow-sm ${getPaddingStyles()} ${className}`}
       {...props}
     >
       {children}

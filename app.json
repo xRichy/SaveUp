@@ -3,8 +3,13 @@
     "name": "SaveUp",
     "slug": "SaveUp",
     "version": "1.0.0",
+    "splash": {
+      "image": "./assets/images/mascotte/Mascotte-no-back.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/mascotte/Icon-logo.png",
     "scheme": "saveup",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -31,7 +36,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/mascotte/Mascotte-no-back.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",
@@ -39,7 +44,8 @@
             "backgroundColor": "#000000"
           }
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,
