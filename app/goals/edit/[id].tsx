@@ -195,11 +195,11 @@ export default function EditGoalScreen() {
                                 Target Amount
                             </Text>
                             <View
-                                className="border rounded-xl px-4 py-4 flex-row items-center bg-white dark:bg-zinc-800 border-gray-200 dark:border-zinc-700"
+                                className="border rounded-xl px-4 h-14 flex-row items-center bg-white dark:bg-zinc-800 border-gray-200 dark:border-zinc-700"
                             >
                                 <Text className="text-gray-500 mr-2 text-lg">€</Text>
                                 <TextInput
-                                    className="w-full text-lg text-gray-900 dark:text-white"
+                                    className="flex-1 text-lg text-gray-900 dark:text-white"
                                     placeholder="0"
                                     placeholderTextColor={isDark ? "#6B7280" : "#9CA3AF"}
                                     value={formData.target}
@@ -207,6 +207,7 @@ export default function EditGoalScreen() {
                                         setFormData({ ...formData, target: text })
                                     }
                                     keyboardType="numeric"
+                                    style={{ lineHeight: 22, paddingVertical: 0 }}
                                 />
                             </View>
                         </View>
@@ -223,8 +224,8 @@ export default function EditGoalScreen() {
                                     <TouchableOpacity
                                         key={category.id}
                                         className={`flex-1 min-w-[45%] border-2 rounded-2xl p-4 items-center ${formData.category === category.id
-                                                ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20"
-                                                : "border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800"
+                                            ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20"
+                                            : "border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800"
                                             }`}
                                         onPress={() => {
                                             setFormData({ ...formData, category: category.id })
@@ -233,8 +234,8 @@ export default function EditGoalScreen() {
                                         <Text className="text-3xl mb-2">{category.emoji}</Text>
                                         <Text
                                             className={`font-medium text-sm text-center ${formData.category === category.id
-                                                    ? "text-purple-700 dark:text-purple-300"
-                                                    : "text-gray-700 dark:text-gray-200"
+                                                ? "text-purple-700 dark:text-purple-300"
+                                                : "text-gray-700 dark:text-gray-200"
                                                 }`}
                                         >
                                             {category.name}
@@ -296,8 +297,8 @@ export default function EditGoalScreen() {
                                     <TouchableOpacity
                                         key={level}
                                         className={`flex-1 py-3 rounded-xl items-center border ${formData.priority === level
-                                                ? "bg-purple-600 border-purple-600"
-                                                : "bg-white dark:bg-zinc-800 border-gray-200 dark:border-zinc-700"
+                                            ? "bg-purple-600 border-purple-600"
+                                            : "bg-white dark:bg-zinc-800 border-gray-200 dark:border-zinc-700"
                                             }`}
                                         onPress={() =>
                                             setFormData({
@@ -308,8 +309,8 @@ export default function EditGoalScreen() {
                                     >
                                         <Text
                                             className={`font-semibold capitalize ${formData.priority === level
-                                                    ? "text-white"
-                                                    : "text-gray-700 dark:text-gray-200"
+                                                ? "text-white"
+                                                : "text-gray-700 dark:text-gray-200"
                                                 }`}
                                         >
                                             {level}

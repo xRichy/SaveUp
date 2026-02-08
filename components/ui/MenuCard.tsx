@@ -32,15 +32,16 @@ export const MenuCard: React.FC<MenuCardProps> = ({
         <TouchableOpacity
             onPress={onPress}
             disabled={!onPress}
+            activeOpacity={0.7}
+            style={{ minHeight: 60 }} // Ensure adequate touch target size
             className={`mx-1 mb-3 p-4 rounded-2xl flex-row items-center ${isDark ? 'bg-zinc-900' : 'bg-white'
                 } shadow-sm border border-gray-100 dark:border-zinc-800`}
-            activeOpacity={0.7}
         >
             <View className={`p-3 rounded-xl mr-4 ${danger
-                    ? 'bg-red-50 dark:bg-red-900/20'
-                    : isDark
-                        ? 'bg-purple-900/20'
-                        : 'bg-purple-50'
+                ? 'bg-red-50 dark:bg-red-900/20'
+                : isDark
+                    ? 'bg-purple-900/20'
+                    : 'bg-purple-50'
                 }`}>
                 {Icon ? (
                     <Icon
@@ -52,10 +53,10 @@ export const MenuCard: React.FC<MenuCardProps> = ({
                 )}
             </View>
 
-            <View className="flex-1">
+            <View className="flex-1 justify-center">
                 <Text className={`font-semibold text-base ${danger
-                        ? 'text-red-500'
-                        : isDark ? 'text-white' : 'text-gray-900'
+                    ? 'text-red-500'
+                    : isDark ? 'text-white' : 'text-gray-900'
                     }`}>
                     {title}
                 </Text>

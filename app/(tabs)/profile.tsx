@@ -162,7 +162,7 @@ export default function ProfileScreen() {
               {!isEditing ? (
                 <TouchableOpacity
                   onPress={handleStartEdit}
-                  className="bg-white/20 p-2 rounded-xl backdrop-blur-sm"
+                  className="bg-white/20 p-2 rounded-xl"
                 >
                   <Edit3 size={20} color="white" />
                 </TouchableOpacity>

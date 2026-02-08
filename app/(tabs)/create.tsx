@@ -3,9 +3,10 @@
 import { GOAL_CATEGORIES, useGoalsState } from "@/store/goals";
 import { useLanguage } from '@/store/language';
 import { useThemeStore } from "@/store/theme";
+import { useFocusEffect } from '@react-navigation/native';
 import { router } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
-import React, { useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -50,6 +51,13 @@ export default function CreateGoalPage() {
 
   const [showDatePicker, setShowDatePicker] = useState(false);
 
+  // Reset scroll on focus
+  useFocusEffect(
+    useCallback(() => {
+      scrollViewRef.current?.scrollTo({ y: 0, animated: false });
+    }, [])
+  );
+
   const onChangeDate = (event: any, selectedDate?: Date) => {
     const currentDate = selectedDate || formData.deadline;
     setFormData({ ...formData, deadline: currentDate });
@@ -88,6 +96,8 @@ export default function CreateGoalPage() {
     (cat) => cat.id === formData.category
   );
 
+  const scrollViewRef = useRef<ScrollView>(null);
+
   return (
     <ScreenLayout edges={['top']}>
       <KeyboardAvoidingView
@@ -114,6 +124,7 @@ export default function CreateGoalPage() {
 
 
         <ScrollView
+          ref={scrollViewRef}
           contentContainerStyle={{ flexGrow: 1, padding: 16, paddingBottom: 100 }}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled">
@@ -170,11 +181,11 @@ export default function CreateGoalPage() {
                 {t('targetAmount')}
               </Text>
               <View
-                className="border rounded-xl px-4 py-4 flex-row items-center bg-white dark:bg-zinc-800 border-gray-200 dark:border-zinc-700"
+                className="border rounded-xl px-4 h-14 flex-row items-center bg-white dark:bg-zinc-800 border-gray-200 dark:border-zinc-700"
               >
                 <Text className="text-gray-500 mr-2 text-lg">€</Text>
                 <TextInput
-                  className="w-full text-lg text-gray-900 dark:text-white"
+                  className="flex-1 text-lg text-gray-900 dark:text-white"
                   placeholder="0"
                   placeholderTextColor={isDark ? "#6B7280" : "#9CA3AF"}
                   value={formData.target}
@@ -182,6 +193,7 @@ export default function CreateGoalPage() {
                     setFormData({ ...formData, target: text })
                   }
                   keyboardType="numeric"
+                  style={{ lineHeight: 22, paddingVertical: 0 }}
                 />
               </View>
             </View>

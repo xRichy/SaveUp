@@ -62,8 +62,8 @@ const TransactionGoal = () => {
         <ScreenLayout edges={['top']}>
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                style={{ flex: 1 }}>
-
+                style={{ flex: 1 }}
+            >
                 {/* Header */}
                 <View
                     className="flex-row items-center justify-between px-6 py-4"
@@ -98,11 +98,11 @@ const TransactionGoal = () => {
                                 Amount Saved
                             </Text>
                             <View
-                                className="border rounded-xl px-4 py-4 flex-row items-center bg-white dark:bg-zinc-800 border-gray-200 dark:border-zinc-700"
+                                className="border rounded-xl px-4 h-14 flex-row items-center bg-white dark:bg-zinc-800 border-gray-200 dark:border-zinc-700"
                             >
                                 <Text className="text-gray-500 mr-2 text-lg">€</Text>
                                 <TextInput
-                                    className="w-full text-lg text-gray-900 dark:text-white"
+                                    className="flex-1 text-lg text-gray-900 dark:text-white"
                                     placeholder="0"
                                     placeholderTextColor={isDark ? "#6B7280" : "#9CA3AF"}
                                     value={transaction.amount > 0 ? transaction.amount.toString() : ''}
@@ -111,6 +111,7 @@ const TransactionGoal = () => {
                                     }
                                     keyboardType="numeric"
                                     autoFocus
+                                    style={{ lineHeight: 22, paddingVertical: 0 }}
                                 />
                             </View>
                         </View>
