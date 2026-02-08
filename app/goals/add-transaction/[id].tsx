@@ -1,24 +1,29 @@
 // app/goals/add-transaction/[id].tsx
 
+import { GradientButton } from '@/components/ui/GradientButton'; // Import GradientButton
+import { ScreenLayout } from '@/components/ui/ScreenLayout'; // Import ScreenLayout
 import { GoalTransaction, useGoalsState } from '@/store/goals';
 import { useThemeStore } from '@/store/theme';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useState } from 'react'
-import { KeyboardAvoidingView, Platform, ScrollView, StatusBar, View, Text, TextInput, TouchableOpacity } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { parse } from 'date-fns';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
+import React, { useState } from 'react';
+import {
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
+} from 'react-native';
 
 const TransactionGoal = () => {
     const { id } = useLocalSearchParams();
-
     const router = useRouter();
-
     const { addTransaction } = useGoalsState();
-
-    const { goals } = useGoalsState();
     const { theme } = useThemeStore();
+    const isDark = theme === "dark";
 
     const [transaction, setTransaction] = useState<GoalTransaction>({
         id: '',
@@ -33,17 +38,12 @@ const TransactionGoal = () => {
     }
 
     const handleSave = () => {
-
-        console.log("Salvataggio transazione...");
-        console.log("Transaction of Goal ID to save: ", id);
-
-        if (!transaction.amount || transaction.amount === 0 || transaction.amount < 0) {
-            alert("Inserisci un importo valido maggiore di 0");
+        if (!transaction.amount || transaction.amount <= 0) {
+            alert("Please enter a valid amount greater than 0");
             return;
         }
         if (!id || typeof id !== 'string') {
-            console.log("ID obiettivo non valido: ", typeof id, id);
-            alert("ID obiettivo non valido");
+            alert("Invalid goal ID");
             router.back();
             return;
         }
@@ -51,145 +51,124 @@ const TransactionGoal = () => {
         const result = addTransaction(parseInt(id), transaction)
 
         if (!result.success) {
-            console.log("Errore nell'aggiunta della transazione: ", result.error);
-            alert("Errore nell'aggiunta della transazione: " + result.error);
+            alert("Error adding transaction: " + result.error);
             return;
         }
-        
-        console.log("Transazione aggiunta con successo");
-        console.log("Transaction: ", transaction);
 
         router.back();
     }
 
-
-
-    const isDark = theme === "dark";
-
     return (
-        <>
-            <StatusBar barStyle={theme === "dark" ? "light-content" : "dark-content"} />
-            <SafeAreaView
-                className={`flex-1 ${isDark ? "bg-black" : "bg-gradient-to-br from-purple-50 via-white to-blue-50"}`}
-            >
+        <ScreenLayout edges={['top']}>
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                style={{ flex: 1 }}>
+
                 {/* Header */}
                 <View
-                    className={`flex-row items-center justify-between px-6 py-4 ${isDark ? "bg-zinc-900" : "bg-white"
-                        }`}
+                    className="flex-row items-center justify-between px-6 py-4"
                 >
-                    <TouchableOpacity onPress={() => router.back()}>
+                    <TouchableOpacity
+                        onPress={() => router.back()}
+                        className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-zinc-800"
+                    >
                         <ArrowLeft size={24} color={isDark ? "#F3F4F6" : "#374151"} />
                     </TouchableOpacity>
                     <Text
-                        className={`text-lg font-semibold ${isDark ? "text-white" : "text-gray-900"
-                            }`}
+                        className="text-lg font-bold text-gray-900 dark:text-white"
                     >
-                        Nuova Transazione
+                        Add Transaction
                     </Text>
-                    <TouchableOpacity onPress={handleSave}>
-                        <Text className="text-purple-600 font-semibold">Salva</Text>
-                    </TouchableOpacity>
+                    <View className="w-10" />
                 </View>
 
-                <KeyboardAvoidingView
-                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                    style={{ flex: 1 }}>
-                    <ScrollView
-                        className="flex-1 px-6 py-6"
-                        contentContainerStyle={{ paddingBottom: 20 }} // Un po' di spazio in fondo
-                        keyboardShouldPersistTaps="handled">
+                <ScrollView
+                    className="flex-1 px-6"
+                    contentContainerStyle={{ paddingBottom: 50 }}
+                    keyboardShouldPersistTaps="handled">
 
+                    {/* Form */}
+                    <View className="space-y-6 mt-6">
 
-                        {/* Form */}
-                        <View className="space-y-6 my-auto">
-
-
-                            {/* Importo Target */}
-                            <View className="my-3">
-                                <Text
-                                    className={`mb-2 font-semibold ${isDark ? "text-gray-200" : "text-gray-700"
-                                        }`}
-                                >
-                                    Quanto hai risparmiato?
-                                </Text>
-                                <View
-                                    className={`border rounded-xl px-4 py-3 flex-row items-center ${isDark
-                                        ? "bg-zinc-800 border-zinc-700"
-                                        : "bg-white border-gray-200"
-                                        }`}
-                                >
-                                    <Text className="text-gray-500 mr-2">€</Text>
-                                    <TextInput
-                                        className={`w-full ${isDark ? "text-white" : "text-gray-900"
-                                            }`}
-                                        placeholder="0"
-                                        placeholderTextColor={isDark ? "#9CA3AF" : "#9CA3AF"}
-                                        value={transaction.amount.toString()}
-                                        onChangeText={(text) =>
-                                            setTransaction({ ...transaction, amount: parseFloat(text) || 0 })
-                                        }
-                                        keyboardType="numeric"
-                                    />
-                                </View>
+                        {/* Amount */}
+                        <View className="mb-4">
+                            <Text
+                                className="mb-2 font-semibold text-gray-700 dark:text-gray-200"
+                            >
+                                Amount Saved
+                            </Text>
+                            <View
+                                className="border rounded-xl px-4 py-4 flex-row items-center bg-white dark:bg-zinc-800 border-gray-200 dark:border-zinc-700"
+                            >
+                                <Text className="text-gray-500 mr-2 text-lg">€</Text>
+                                <TextInput
+                                    className="w-full text-lg text-gray-900 dark:text-white"
+                                    placeholder="0"
+                                    placeholderTextColor={isDark ? "#6B7280" : "#9CA3AF"}
+                                    value={transaction.amount > 0 ? transaction.amount.toString() : ''}
+                                    onChangeText={(text) =>
+                                        setTransaction({ ...transaction, amount: parseFloat(text) || 0 })
+                                    }
+                                    keyboardType="numeric"
+                                    autoFocus
+                                />
                             </View>
+                        </View>
 
 
-                            {/* Deadline */}
-                            <View className="my-3">
-                                <Text className={`mb-2 font-semibold ${isDark ? "text-gray-200" : "text-gray-700"}`}>
-                                    Data
-                                </Text>
-
+                        {/* Date */}
+                        <View className="mb-4">
+                            <Text className="mb-2 font-semibold text-gray-700 dark:text-gray-200">
+                                Date
+                            </Text>
+                            <View className="bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl overflow-hidden">
                                 <DateTimePicker
                                     value={transaction.date || new Date()}
                                     mode="date"
                                     display="spinner"
                                     onChange={onChangeDate}
-                                    className={`border rounded-xl px-4 py-3 ${isDark
-                                        ? "bg-zinc-800 border-zinc-700 text-white"
-                                        : "bg-white border-gray-200 text-gray-900"
-                                        }`}
                                     textColor={isDark ? "#FFFFFF" : "#000000"}
-
-                                />
-
-                            </View>
-
-
-                            {/* Note */}
-                            <View className="my-3">
-                                <Text
-                                    className={`mb-2 font-semibold ${isDark ? "text-gray-200" : "text-gray-700"
-                                        }`}
-                                >
-                                    Note (opzionali)
-                                </Text>
-                                <TextInput
-                                    className={`border rounded-xl px-4 py-3 ${isDark
-                                        ? "bg-zinc-800 border-zinc-700 text-white"
-                                        : "bg-white border-gray-200 text-gray-900"
-                                        }`}
-                                    placeholder="Aggiungi eventuali note..."
-                                    placeholderTextColor={isDark ? "#9CA3AF" : "#9CA3AF"}
-                                    value={transaction.note}
-                                    onChangeText={(text) =>
-                                        setTransaction({ ...transaction, note: text })
-                                    }
-                                    multiline
-                                    numberOfLines={3}
-                                    textAlignVertical="top"
+                                    style={{ height: 120 }}
                                 />
                             </View>
-
-
-
                         </View>
 
-                    </ScrollView>
-                </KeyboardAvoidingView>
-            </SafeAreaView>
 
-        </>
+                        {/* Note */}
+                        <View className="mb-4">
+                            <Text
+                                className="mb-2 font-semibold text-gray-700 dark:text-gray-200"
+                            >
+                                Notes (optional)
+                            </Text>
+                            <TextInput
+                                className="border rounded-xl px-4 py-4 bg-white dark:bg-zinc-800 border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white"
+                                placeholder="Add any notes..."
+                                placeholderTextColor={isDark ? "#6B7280" : "#9CA3AF"}
+                                value={transaction.note}
+                                onChangeText={(text) =>
+                                    setTransaction({ ...transaction, note: text })
+                                }
+                                multiline
+                                numberOfLines={3}
+                                textAlignVertical="top"
+                            />
+                        </View>
+
+                        {/* Save Button */}
+                        <View className="w-full items-center mt-6">
+                            <GradientButton
+                                title="Save Transaction"
+                                onPress={handleSave}
+                                className="w-full shadow-lg shadow-purple-500/20"
+                            />
+                        </View>
+
+                    </View>
+
+                </ScrollView>
+            </KeyboardAvoidingView>
+        </ScreenLayout>
     )
 }
 

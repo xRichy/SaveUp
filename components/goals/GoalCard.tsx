@@ -1,15 +1,11 @@
-
-// =============================================================================
-// src/components/goals/GoalCard.tsx - Card per gli obiettivi
-// =============================================================================
-
-import React from 'react';
-import { Text, TouchableOpacity, View, ColorValue } from 'react-native';
-import { router } from 'expo-router';
-import { Card } from '../ui/Card';
-import { ProgressBar } from '../ui/ProgressBar';
-import { GradientButton } from '../ui/GradientButton';
+import { useLanguage } from '@/store/language';
 import { useThemeStore } from '@/store/theme';
+import { router } from 'expo-router';
+import React from 'react';
+import { Text, TouchableOpacity, View } from 'react-native';
+import { Card } from '../ui/Card';
+import { GradientButton } from '../ui/GradientButton';
+import { ProgressBar } from '../ui/ProgressBar';
 
 interface Goal {
   id: string | number;
@@ -28,75 +24,78 @@ interface GoalCardProps {
 
 export const GoalCard: React.FC<GoalCardProps> = ({ goal, onAddFunds }) => {
   const { theme } = useThemeStore();
+  const { t } = useLanguage();
   const isDark = theme === 'dark';
 
-  const formatCurrency = (amount: number) => 
-    new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(amount);
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(amount);
 
   const progress = (goal.saved / goal.target) * 100;
   const isCompleted = progress >= 100;
 
-  const getProgressColor = (): readonly [ColorValue, ColorValue, ...ColorValue[]] => {
-    if (isCompleted) return ['#10B981', '#059669'] as const;
-    if (progress > 60) return ['#8B5CF6', '#EC4899'] as const;
-    if (progress > 30) return ['#F59E0B', '#EA580C'] as const;
-    return ['#EF4444', '#EC4899'] as const;
+  const getProgressColorClass = () => {
+    if (isCompleted) return 'bg-green-500';
+    if (progress > 60) return 'bg-purple-500';
+    if (progress > 30) return 'bg-orange-500';
+    return 'bg-red-500';
   };
 
   return (
-    <TouchableOpacity onPress={() => router.push(`/goals/${goal.id}`)} className="mb-4">
-      <Card >
+    <TouchableOpacity onPress={() => router.push(`/goals/${goal.id}`)} className="mb-4" activeOpacity={0.7}>
+      <Card variant="elevated" className="border border-gray-100 dark:border-zinc-700">
         {/* Header */}
-        <View className="flex-row items-center mb-4">
-          <View className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${goal.color} items-center justify-center shadow-md`}>
+        <View className="flex-row items-start mb-4">
+          <View className={`w-14 h-14 rounded-2xl items-center justify-center bg-gray-50 dark:bg-zinc-800`}>
             <Text className="text-2xl">{goal.emoji}</Text>
           </View>
-          
+
           <View className="flex-1 ml-4">
-            <Text className={`text-xl font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
-              {goal.name}
-            </Text>
+            <View className="flex-row justify-between items-start">
+              <Text className="text-lg font-bold text-gray-900 dark:text-white flex-1 mr-2" numberOfLines={1}>
+                {goal.name}
+              </Text>
+              {isCompleted && (
+                <View className="bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-full">
+                  <Text className="text-green-700 dark:text-green-400 font-bold text-[10px] uppercase tracking-wider">{t('completed')}</Text>
+                </View>
+              )}
+            </View>
+
             {goal.description && (
               <Text
-                className={`${isDark ? "text-gray-400" : "text-gray-500"} text-sm mt-1`}
+                className="text-gray-500 dark:text-gray-400 text-sm mt-0.5"
                 numberOfLines={1}
               >
                 {goal.description}
               </Text>
             )}
           </View>
-          
-          {isCompleted && (
-            <View className="bg-green-100 dark:bg-green-800 px-3 py-1 rounded-full">
-              <Text className="text-green-800 dark:text-green-100 font-semibold text-xs">✓ Completato</Text>
-            </View>
-          )}
         </View>
 
         {/* Progresso */}
-        <View className="mb-4">
-          <View className="flex-row justify-between items-baseline mb-3">
-            <Text className={`text-3xl font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
+        <View className="mb-5">
+          <View className="flex-row justify-between items-baseline mb-2">
+            <Text className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               {formatCurrency(goal.saved)}
             </Text>
-            <Text className={`${isDark ? "text-gray-400" : "text-gray-500"}`}>
-              di {formatCurrency(goal.target)}
+            <Text className="text-sm text-gray-500 dark:text-gray-500">
+              / {formatCurrency(goal.target)}
             </Text>
           </View>
-          
-          <ProgressBar 
+
+          <ProgressBar
             progress={progress}
-            colors={getProgressColor()}
             height={8}
-            showGlow={true}
+            className="bg-gray-100 dark:bg-zinc-700"
+            fillClassName={getProgressColorClass()}
           />
-          
+
           <View className="flex-row justify-between items-center mt-2">
-            <Text className={`text-sm font-medium ${isDark ? "text-gray-400" : "text-gray-600"}`}>
-              {progress.toFixed(1)}%
+            <Text className="text-xs font-semibold text-gray-400 dark:text-zinc-500">
+              {progress.toFixed(0)}%
             </Text>
-            <Text className={`text-sm font-semibold ${isDark ? "text-gray-300" : "text-gray-800"}`}>
-              {isCompleted ? '🎉 Obiettivo raggiunto!' : `Mancano ${formatCurrency(goal.target - goal.saved)}`}
+            <Text className="text-xs font-medium text-gray-500 dark:text-gray-400">
+              {isCompleted ? t('goalReached') : `${formatCurrency(goal.target - goal.saved)} ${t('toGo')}`}
             </Text>
           </View>
         </View>
@@ -104,9 +103,9 @@ export const GoalCard: React.FC<GoalCardProps> = ({ goal, onAddFunds }) => {
         {/* Action Button */}
         {!isCompleted && (
           <GradientButton
-            title="+ Aggiungi Fondi"
+            title={t('addFunds')}
             onPress={() => onAddFunds?.(goal.id)}
-            className="w-full"
+            className="w-full shadow-none"
           />
         )}
       </Card>

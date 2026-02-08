@@ -8,9 +8,20 @@ SaveUp è un'applicazione mobile per la gestione degli obiettivi di risparmio pe
 - Visualizzazione delle statistiche di progresso
 - Notifiche e reminder *(WIP)
 - Interfaccia moderna con supporto tema chiaro/scuro
+- **Supporto Multilingua (Italiano / Inglese)**
+- **Splash Screen gestito correttamente**
 - Storico delle transazioni per ogni obiettivo
 - Navigazione a tab e modali
 - Animazioni e icone personalizzate
+
+## Anteprima
+
+<p align="center">
+  <img src="./images_github/IMG_7250.PNG" width="200" alt="Home Screen" />
+  <img src="./images_github/IMG_7251.PNG" width="200" alt="Stats Screen" />
+  <img src="./images_github/IMG_7252.PNG" width="200" alt="Goal Details" />
+  <img src="./images_github/IMG_7255.PNG" width="200" alt="Settings Language" />
+</p>
 
 ## Struttura del progetto
 

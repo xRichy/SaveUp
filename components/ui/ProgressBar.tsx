@@ -1,93 +1,36 @@
-
-// =============================================================================
-// src/components/ui/ProgressBar.tsx - Progress bar animata
-// =============================================================================
-import React, { useEffect, useRef } from 'react';
-import { View, Animated, ColorValue } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+// components/ui/ProgressBar.tsx
+import { useThemeStore } from '@/store/theme';
+import React from 'react';
+import { View } from 'react-native';
 
 interface ProgressBarProps {
-  progress: number; // 0-100
+  progress: number;
   height?: number;
-  colors?: readonly [ColorValue, ColorValue, ...ColorValue[]]; // Tipo corretto per LinearGradient
-  backgroundColor?: string;
-  animated?: boolean;
-  showGlow?: boolean;
+  className?: string;
+  fillClassName?: string;
 }
 
 export const ProgressBar: React.FC<ProgressBarProps> = ({
   progress,
-  height = 12,
-  colors = ['#8B5CF6', '#EC4899'] as const, // as const per inferenza tipo
-  backgroundColor = '#E5E7EB', // gray-200
-  animated = true,
-  showGlow = false
+  height = 8,
+  className = '',
+  fillClassName = ''
 }) => {
-  const animatedWidth = useRef(new Animated.Value(0)).current;
+  const { theme } = useThemeStore();
+  const isDark = theme === 'dark';
 
-  useEffect(() => {
-    if (animated) {
-      Animated.timing(animatedWidth, {
-        toValue: progress,
-        duration: 1000,
-        useNativeDriver: false,
-      }).start();
-    }
-  }, [progress, animated]);
-
-  const containerStyle = {
-    height,
-    backgroundColor,
-    borderRadius: height / 2,
-    overflow: 'hidden' as const,
-  };
-
-  const progressStyle = {
-    height,
-    borderRadius: height / 2,
-    shadowColor: showGlow ? colors[0] : 'transparent',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: showGlow ? 0.5 : 0,
-    shadowRadius: showGlow ? 8 : 0,
-    elevation: showGlow ? 4 : 0,
-  };
+  // Cap at 100%
+  const percentage = Math.min(Math.max(progress, 0), 100);
 
   return (
-    <View style={containerStyle} className="w-full">
-      {animated ? (
-        <Animated.View
-          style={[
-            progressStyle,
-            {
-              width: animatedWidth.interpolate({
-                inputRange: [0, 100],
-                outputRange: ['0%', '100%'],
-              }),
-            },
-          ]}
-        >
-          <LinearGradient
-            colors={colors}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={{ height, borderRadius: height / 2 }}
-          />
-        </Animated.View>
-      ) : (
-        <View 
-          style={[
-            progressStyle,
-            { width: `${Math.min(progress, 100)}%` }
-          ]}
-        >
-          <LinearGradient
-            colors={colors}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={{ height, borderRadius: height / 2 }}
-          />
-        </View>
-      )}
+    <View
+      className={`w-full rounded-full overflow-hidden ${isDark ? 'bg-zinc-700' : 'bg-gray-200'} ${className}`}
+      style={{ height }}
+    >
+      <View
+        className={`h-full rounded-full ${isDark ? 'bg-purple-500' : 'bg-purple-600'} ${fillClassName}`}
+        style={{ width: `${percentage}%` }}
+      />
     </View>
   );
 };

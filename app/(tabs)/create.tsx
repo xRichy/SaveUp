@@ -1,6 +1,7 @@
 // app/(tabs)/create.tsx
 
-import { GoalCategory, useGoalsState } from "@/store/goals";
+import { GOAL_CATEGORIES, useGoalsState } from "@/store/goals";
+import { useLanguage } from '@/store/language';
 import { useThemeStore } from "@/store/theme";
 import { router } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
@@ -9,25 +10,15 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  StatusBar,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 import { GradientButton } from "@/components/ui/GradientButton";
+import { ScreenLayout } from "@/components/ui/ScreenLayout"; // Import ScreenLayout
 import DateTimePicker from '@react-native-community/datetimepicker';
-
-const GOAL_CATEGORIES: GoalCategory[] = [
-  { id: "travel", name: "Viaggi", emoji: "✈️", color: "from-blue-500 to-cyan-500" },
-  { id: "tech", name: "Tecnologia", emoji: "💻", color: "from-purple-500 to-indigo-500" },
-  { id: "car", name: "Auto", emoji: "🚗", color: "from-green-500 to-emerald-500" },
-  { id: "home", name: "Casa", emoji: "🏠", color: "from-yellow-500 to-orange-500" },
-  { id: "education", name: "Formazione", emoji: "📚", color: "from-red-500 to-pink-500" },
-  { id: "other", name: "Altro", emoji: "🎯", color: "from-gray-500 to-slate-500" },
-];
 
 type FormData = {
   name: string;
@@ -42,8 +33,10 @@ type FormData = {
 export default function CreateGoalPage() {
   const { addGoal } = useGoalsState();
   const { theme } = useThemeStore();
+  const { t } = useLanguage();
+  const isDark = theme === "dark";
 
-  const [formData, setFormData] = useState<FormData>({
+  const INITIAL_FORM_STATE: FormData = {
     name: "",
     target: "",
     category: null,
@@ -51,13 +44,11 @@ export default function CreateGoalPage() {
     deadline: new Date(),
     priority: "medium",
     notes: "",
-  });
+  };
+
+  const [formData, setFormData] = useState<FormData>(INITIAL_FORM_STATE);
 
   const [showDatePicker, setShowDatePicker] = useState(false);
-
-  const toggleDatePicker = () => {
-    setShowDatePicker(!showDatePicker);
-  }
 
   const onChangeDate = (event: any, selectedDate?: Date) => {
     const currentDate = selectedDate || formData.deadline;
@@ -89,6 +80,7 @@ export default function CreateGoalPage() {
       return;
     }
 
+    setFormData(INITIAL_FORM_STATE);
     router.back();
   };
 
@@ -96,296 +88,245 @@ export default function CreateGoalPage() {
     (cat) => cat.id === formData.category
   );
 
-  const isDark = theme === "dark";
-
   return (
-    <>
-      <StatusBar
-        barStyle={isDark ? 'light-content' : 'dark-content'}
-        backgroundColor={isDark ? '#111827' : '#F9FAFB'}
-      />
-
-      <SafeAreaView
-        className={`flex-1 ${isDark ? "bg-black" : "bg-gradient-to-br from-purple-50 via-white to-blue-50"}`}
+    <ScreenLayout edges={['top']}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
       >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        {/* Header */}
+        <View
+          className="flex-row items-center justify-between px-6 py-4"
         >
-
-          {/* Header */}
-          <View
-            className={`flex-row items-center justify-between px-6 py-4 ${isDark ? "bg-zinc-900" : "bg-blue-50"
-              }`}
+          <TouchableOpacity
+            onPress={() => router.back()}
+            className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-zinc-800"
           >
-            <TouchableOpacity onPress={() => router.back()}>
-              <ArrowLeft size={24} color={isDark ? "#F3F4F6" : "#374151"} />
-            </TouchableOpacity>
-            <Text
-              className={`text-lg font-semibold ${isDark ? "text-white" : "text-gray-900"
-                }`}
-            >
-              Nuovo Obiettivo
-            </Text>
-            <TouchableOpacity onPress={handleSave}>
-              <Text className="text-purple-600 font-semibold">Salva</Text>
-            </TouchableOpacity>
-          </View>
+            <ArrowLeft size={24} color={isDark ? "#F3F4F6" : "#374151"} />
+          </TouchableOpacity>
+          <Text
+            className="text-lg font-bold text-gray-900 dark:text-white"
+          >
+            {t('createGoalTitle')}
+          </Text>
+          <View className="w-10" />
+        </View>
 
 
-          <ScrollView
-            contentContainerStyle={{ flexGrow: 1 , padding: 16, paddingBottom: 50 }}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled">
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1, padding: 16, paddingBottom: 100 }}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled">
 
-            {/* Preview Card */}
+          {/* Preview Card */}
+          <View
+            className="rounded-3xl p-6 mt-2 shadow-sm mb-6 bg-white dark:bg-zinc-800 border border-gray-100 dark:border-zinc-700"
+          >
             <View
-              className={`rounded-2xl p-6 mt-2 shadow-lg mb-6 ${isDark ? "bg-zinc-900" : "bg-white"
+              className={`w-20 h-20 rounded-full items-center justify-center mb-4 self-center ${selectedCategory
+                ? `bg-gray-50 dark:bg-zinc-700/50`
+                : "bg-gray-100 dark:bg-zinc-700"
                 }`}
             >
-              <View
-                className={`w-16 h-16 rounded-full items-center justify-center mb-4 self-center ${selectedCategory
-                  ? `bg-gradient-to-r`
-                  : "bg-gray-200"
-                  }`}
-              >
-                <Text className="text-2xl">
-                  {selectedCategory?.emoji || "🎯"}
-                </Text>
-              </View>
-
-              <Text
-                className={`text-xl font-bold text-center mb-2 ${isDark ? "text-white" : "text-gray-900"
-                  }`}
-              >
-                {formData.name || "Nome del tuo obiettivo"}
-              </Text>
-
-              <Text className="text-2xl font-bold text-purple-600 text-center">
-                €{formData.target || "0"}
+              <Text className="text-4xl">
+                {selectedCategory?.emoji || "🎯"}
               </Text>
             </View>
 
-            {/* Form */}
-            <View className="space-y-6">
-              {/* Nome Obiettivo */}
-              <View className="my-3">
-                <Text
-                  className={`mb-2 font-semibold ${isDark ? "text-gray-200" : "text-gray-700"
-                    }`}
-                >
-                  Nome Obiettivo
-                </Text>
+            <Text
+              className="text-xl font-bold text-center mb-1 text-gray-900 dark:text-white"
+            >
+              {formData.name || t('goalName')}
+            </Text>
+
+            <Text className="text-3xl font-bold text-purple-600 dark:text-purple-400 text-center">
+              €{formData.target || "0"}
+            </Text>
+          </View>
+
+          {/* Form */}
+          <View className="space-y-6">
+            {/* Nome Obiettivo */}
+            <View className="mb-4">
+              <Text
+                className="mb-2 font-semibold text-gray-700 dark:text-gray-200"
+              >
+                {t('goalName')}
+              </Text>
+              <TextInput
+                className="border rounded-xl px-4 py-4 bg-white dark:bg-zinc-800 border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white"
+                placeholder={t('goalNamePlaceholder')}
+                placeholderTextColor={isDark ? "#6B7280" : "#9CA3AF"}
+                value={formData.name}
+                onChangeText={(text) => setFormData({ ...formData, name: text })}
+              />
+            </View>
+
+            {/* Importo Target */}
+            <View className="mb-4">
+              <Text
+                className="mb-2 font-semibold text-gray-700 dark:text-gray-200"
+              >
+                {t('targetAmount')}
+              </Text>
+              <View
+                className="border rounded-xl px-4 py-4 flex-row items-center bg-white dark:bg-zinc-800 border-gray-200 dark:border-zinc-700"
+              >
+                <Text className="text-gray-500 mr-2 text-lg">€</Text>
                 <TextInput
-                  className={`border rounded-xl px-4 py-3 ${isDark
-                    ? "bg-zinc-800 border-zinc-700 text-white"
-                    : "bg-white border-gray-200 text-gray-900"
-                    }`}
-                  placeholder="es. Vacanza in Giappone"
-                  placeholderTextColor={isDark ? "#9CA3AF" : "#9CA3AF"}
-                  value={formData.name}
-                  onChangeText={(text) => setFormData({ ...formData, name: text })}
-                />
-              </View>
-
-              {/* Importo Target */}
-              <View className="my-3">
-                <Text
-                  className={`mb-2 font-semibold ${isDark ? "text-gray-200" : "text-gray-700"
-                    }`}
-                >
-                  Quanto vuoi risparmiare?
-                </Text>
-                <View
-                  className={`border rounded-xl px-4 py-3 flex-row items-center ${isDark
-                    ? "bg-zinc-800 border-zinc-700"
-                    : "bg-white border-gray-200"
-                    }`}
-                >
-                  <Text className="text-gray-500 mr-2">€</Text>
-                  <TextInput
-                    className={`w-full ${isDark ? "text-white" : "text-gray-900"
-                      }`}
-                    placeholder="0"
-                    placeholderTextColor={isDark ? "#9CA3AF" : "#9CA3AF"}
-                    value={formData.target}
-                    onChangeText={(text) =>
-                      setFormData({ ...formData, target: text })
-                    }
-                    keyboardType="numeric"
-                  />
-                </View>
-              </View>
-
-              {/* Categoria */}
-              <View className="my-3">
-                <Text
-                  className={`mb-3 font-semibold ${isDark ? "text-gray-200" : "text-gray-700"
-                    }`}
-                >
-                  Categoria
-                </Text>
-                <View className="flex-row flex-wrap gap-3">
-                  {GOAL_CATEGORIES.map((category) => (
-                    <TouchableOpacity
-                      key={category.id}
-                      className={`flex-1 min-w-[45%] border-2 rounded-xl p-4 items-center ${isDark ? "bg-zinc-800" : "bg-white"
-                        } ${formData.category === category.id
-                          ? "border-purple-500"
-                          : isDark
-                            ? "border-zinc-700"
-                            : "border-gray-200"
-                        }`}
-                      onPress={() => {
-                        console.log("Category selected:", category.id);
-                        setFormData({ ...formData, category: category.id })
-                      }
-                      }
-                    >
-                      <Text className="text-2xl mb-2">{category.emoji}</Text>
-                      <Text
-                        className={`font-medium text-sm text-center ${isDark ? "text-gray-200" : "text-gray-700"
-                          }`}
-                      >
-                        {category.name}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
-
-              {/* Descrizione */}
-              <View className="my-3">
-                <Text
-                  className={`mb-2 font-semibold ${isDark ? "text-gray-200" : "text-gray-700"
-                    }`}
-                >
-                  Descrizione (opzionale)
-                </Text>
-                <TextInput
-                  className={`border rounded-xl px-4 py-3 ${isDark
-                    ? "bg-zinc-800 border-zinc-700 text-white"
-                    : "bg-white border-gray-200 text-gray-900"
-                    }`}
-                  placeholder="Aggiungi una descrizione..."
-                  placeholderTextColor={isDark ? "#9CA3AF" : "#9CA3AF"}
-                  value={formData.description}
+                  className="w-full text-lg text-gray-900 dark:text-white"
+                  placeholder="0"
+                  placeholderTextColor={isDark ? "#6B7280" : "#9CA3AF"}
+                  value={formData.target}
                   onChangeText={(text) =>
-                    setFormData({ ...formData, description: text })
+                    setFormData({ ...formData, target: text })
                   }
-                  multiline
-                  numberOfLines={3}
-                  textAlignVertical="top"
+                  keyboardType="numeric"
                 />
               </View>
+            </View>
 
-              {/* Deadline */}
-              <View className="my-3">
-                <Text
-                  className={`mb-2 font-semibold ${isDark ? "text-gray-200" : "text-gray-700"
-                    }`}
-                >
-                  Scadenza (opzionale)
-                </Text>
+            {/* Categoria */}
+            <View className="mb-4">
+              <Text
+                className="mb-3 font-semibold text-gray-700 dark:text-gray-200"
+              >
+                {t('category')}
+              </Text>
+              <View className="flex-row flex-wrap gap-3">
+                {GOAL_CATEGORIES.map((category) => (
+                  <TouchableOpacity
+                    key={category.id}
+                    className={`flex-1 min-w-[45%] border-2 rounded-2xl p-4 items-center ${formData.category === category.id
+                      ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20"
+                      : "border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800"
+                      }`}
+                    onPress={() => {
+                      setFormData({ ...formData, category: category.id })
+                    }}
+                  >
+                    <Text className="text-3xl mb-2">{category.emoji}</Text>
+                    <Text
+                      className={`font-medium text-sm text-center ${formData.category === category.id
+                        ? "text-purple-700 dark:text-purple-300"
+                        : "text-gray-700 dark:text-gray-200"
+                        }`}
+                    >
+                      {category.name}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
 
+            {/* Descrizione */}
+            <View className="mb-4">
+              <Text
+                className="mb-2 font-semibold text-gray-700 dark:text-gray-200"
+              >
+                {t('description')}
+              </Text>
+              <TextInput
+                className="border rounded-xl px-4 py-4 bg-white dark:bg-zinc-800 border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white"
+                placeholder={t('descriptionPlaceholder')}
+                placeholderTextColor={isDark ? "#6B7280" : "#9CA3AF"}
+                value={formData.description}
+                onChangeText={(text) =>
+                  setFormData({ ...formData, description: text })
+                }
+                multiline
+                numberOfLines={3}
+                textAlignVertical="top"
+              />
+            </View>
+
+            {/* Deadline */}
+            <View className="mb-4">
+              <Text
+                className="mb-2 font-semibold text-gray-700 dark:text-gray-200"
+              >
+                {t('deadlineOptional')}
+              </Text>
+              <View className="bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl overflow-hidden">
                 <DateTimePicker
                   value={formData.deadline}
                   mode="date"
                   display="spinner"
                   onChange={onChangeDate}
-                  className={`border rounded-xl px-4 py-3 ${isDark
-                    ? "bg-zinc-800 border-zinc-700 text-white"
-                    : "bg-white border-gray-200 text-gray-900"
-                    }`}
                   textColor={isDark ? "#FFFFFF" : "#000000"}
-
-                />
-
-
-
-
-              </View>
-
-              {/* Priority */}
-              <View className="my-3">
-                <Text
-                  className={`mb-2 font-semibold ${isDark ? "text-gray-200" : "text-gray-700"
-                    }`}
-                >
-                  Priorità
-                </Text>
-                <View className="flex-row gap-3">
-                  {["low", "medium", "high"].map((level) => (
-                    <TouchableOpacity
-                      key={level}
-                      className={`flex-1 py-3 rounded-xl items-center ${formData.priority === level
-                        ? "bg-purple-600"
-                        : isDark
-                          ? "bg-zinc-800"
-                          : "bg-gray-200"
-                        }`}
-                      onPress={() =>
-                        setFormData({
-                          ...formData,
-                          priority: level as "low" | "medium" | "high",
-                        })
-                      }
-                    >
-                      <Text
-                        className={`font-medium ${formData.priority === level
-                          ? "text-white"
-                          : isDark
-                            ? "text-gray-200"
-                            : "text-gray-700"
-                          }`}
-                      >
-                        {level === "low" ? "Bassa" : level === "medium" ? "Media" : "Alta"}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
-
-              {/* Note */}
-              <View className="my-3">
-                <Text
-                  className={`mb-2 font-semibold ${isDark ? "text-gray-200" : "text-gray-700"
-                    }`}
-                >
-                  Note (opzionali)
-                </Text>
-                <TextInput
-                  className={`border rounded-xl px-4 py-3 ${isDark
-                    ? "bg-zinc-800 border-zinc-700 text-white"
-                    : "bg-white border-gray-200 text-gray-900"
-                    }`}
-                  placeholder="Aggiungi eventuali note..."
-                  placeholderTextColor={isDark ? "#9CA3AF" : "#9CA3AF"}
-                  value={formData.notes}
-                  onChangeText={(text) =>
-                    setFormData({ ...formData, notes: text })
-                  }
-                  multiline
-                  numberOfLines={3}
-                  textAlignVertical="top"
+                  style={{ height: 120 }}
                 />
               </View>
             </View>
 
-            {/* Create Button */}
+            {/* Priority */}
+            <View className="mb-4">
+              <Text
+                className="mb-2 font-semibold text-gray-700 dark:text-gray-200"
+              >
+                {t('priority')}
+              </Text>
+              <View className="flex-row gap-3">
+                {["low", "medium", "high"].map((level) => (
+                  <TouchableOpacity
+                    key={level}
+                    className={`flex-1 py-3 rounded-xl items-center border ${formData.priority === level
+                      ? "bg-purple-600 border-purple-600"
+                      : "bg-white dark:bg-zinc-800 border-gray-200 dark:border-zinc-700"
+                      }`}
+                    onPress={() =>
+                      setFormData({
+                        ...formData,
+                        priority: level as "low" | "medium" | "high",
+                      })
+                    }
+                  >
+                    <Text
+                      className={`font-semibold capitalize ${formData.priority === level
+                        ? "text-white"
+                        : "text-gray-700 dark:text-gray-200"
+                        }`}
+                    >
+                      {level}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
 
-            <View className="w-full items-center mt-4">
-
-              <GradientButton
-                title="Crea Obiettivo"
-                onPress={handleSave}
-                className="w-80 rounded-xl mt-6 center-self"
+            {/* Note */}
+            <View className="mb-4">
+              <Text
+                className="mb-2 font-semibold text-gray-700 dark:text-gray-200"
+              >
+                {t('notesOptional')}
+              </Text>
+              <TextInput
+                className="border rounded-xl px-4 py-4 bg-white dark:bg-zinc-800 border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white"
+                placeholder={t('notesPlaceholder')}
+                placeholderTextColor={isDark ? "#6B7280" : "#9CA3AF"}
+                value={formData.notes}
+                onChangeText={(text) =>
+                  setFormData({ ...formData, notes: text })
+                }
+                multiline
+                numberOfLines={3}
+                textAlignVertical="top"
               />
             </View>
+          </View>
 
+          {/* Create Button */}
+          <View className="w-full items-center mt-6">
+            <GradientButton
+              title={t('create')}
+              onPress={handleSave}
+              className="w-full shadow-lg shadow-purple-500/20"
+            />
+          </View>
 
-          </ScrollView>
-        </KeyboardAvoidingView>
-      </SafeAreaView>
-    </>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </ScreenLayout>
   );
 }

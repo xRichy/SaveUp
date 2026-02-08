@@ -1,4 +1,5 @@
 // app/(tab)/_layout.tsx
+import { useLanguage } from '@/store/language';
 import { useThemeStore } from '@/store/theme';
 import { Tabs } from 'expo-router';
 import { BarChart3, Home, Plus, Settings, User } from 'lucide-react-native';
@@ -6,6 +7,7 @@ import { View } from 'react-native';
 
 export default function TabLayout() {
   const { theme } = useThemeStore();
+  const { t } = useLanguage();
 
   const isDark = theme === 'dark';
 
@@ -33,7 +35,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
+          title: t('home'),
           tabBarIcon: ({ color, size }) => (
             <Home color={color} size={size} />
           ),
@@ -43,7 +45,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="stats"
         options={{
-          title: 'Statistiche',
+          title: t('stats'),
           tabBarIcon: ({ color, size }) => (
             <BarChart3 color={color} size={size} />
           ),
@@ -67,7 +69,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profilo',
+          title: t('profile'),
           tabBarIcon: ({ color, size }) => (
             <User color={color} size={size} />
           ),
@@ -76,8 +78,8 @@ export default function TabLayout() {
 
       <Tabs.Screen
         name="settings"
-        options={{ 
-          title: 'Impostazioni',
+        options={{
+          title: t('settings'),
           tabBarIcon: ({ color, size }) => (
             <Settings color={color} size={size} />
           ),

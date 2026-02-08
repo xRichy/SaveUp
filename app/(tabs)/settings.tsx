@@ -1,42 +1,57 @@
+// app/(tabs)/settings.tsx
+import { MenuCard } from '@/components/ui/MenuCard'; // Import MenuCard
+import { ScreenLayout } from '@/components/ui/ScreenLayout'; // Import ScreenLayout
 import { useAuthStore } from '@/store/auth';
+import { useLanguage } from '@/store/language';
 import { useThemeStore } from '@/store/theme';
-import React, { useEffect, useState } from 'react';
+import {
+  Check,
+  FileText,
+  Globe,
+  HelpCircle,
+  Info,
+  LogOut,
+  MessageCircle,
+  Moon,
+  Shield,
+  Star,
+  Sun,
+  Trash2,
+  X
+} from 'lucide-react-native'; // Use Lucide icons
+import React, { useState } from 'react';
 import {
   Alert,
   Linking,
+  Modal,
   Platform,
   ScrollView,
   Share,
   Switch,
   Text,
   TouchableOpacity,
-  useColorScheme,
+  TouchableWithoutFeedback,
   View
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function SettingsPage() {
   const { theme, toggleTheme } = useThemeStore();
   const { logout, user } = useAuthStore();
-  const systemScheme = useColorScheme();
+  const { language, setLanguage, t } = useLanguage();
+  const [isLanguageModalVisible, setLanguageModalVisible] = useState(false);
+
   const isDark = theme === 'dark';
-  
-  // Stati per le varie opzioni
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [biometricsEnabled, setBiometricsEnabled] = useState(false);
-  const [autoBackup, setAutoBackup] = useState(true);
-  const [analyticsEnabled, setAnalyticsEnabled] = useState(false);
 
   const handleLogout = () => {
     Alert.alert(
-      'Logout',
-      'Sei sicuro di voler uscire dal tuo account?',
+      t('logout'),
+      t('logoutConfirm'),
       [
-        { text: 'Annulla', style: 'cancel' },
-        { 
-          text: 'Esci', 
+        { text: t('cancel'), style: 'cancel' },
+        {
+          text: t('logout'),
           style: 'destructive',
-          onPress: logout 
+          onPress: logout
         },
       ]
     );
@@ -44,26 +59,26 @@ export default function SettingsPage() {
 
   const handleDeleteAccount = () => {
     Alert.alert(
-      'Elimina Account',
-      'Questa azione eliminerà permanentemente il tuo account e tutti i tuoi dati. Questa operazione non può essere annullata.',
+      t('deleteAccount'),
+      t('deleteAccountConfirm'),
       [
-        { text: 'Annulla', style: 'cancel' },
+        { text: t('cancel'), style: 'cancel' },
         {
-          text: 'Elimina',
+          text: t('delete'),
           style: 'destructive',
           onPress: () => {
             Alert.alert(
-              'Conferma',
-              'Scrivi "ELIMINA" per confermare l\'eliminazione del tuo account',
+              t('confirm'),
+              t('deleteAccountTypeVerify'),
               [
-                { text: 'Annulla', style: 'cancel' },
+                { text: t('cancel'), style: 'cancel' },
                 {
-                  text: 'Elimina Account',
+                  text: t('deleteAccount'),
                   style: 'destructive',
                   onPress: () => {
                     logout();
                     // Qui chiameresti l'API per eliminare l'account
-                    Alert.alert('Account eliminato', 'Il tuo account è stato eliminato con successo.');
+                    Alert.alert(t('accountDeleted'), t('accountDeletedMsg'));
                   }
                 }
               ]
@@ -82,31 +97,31 @@ export default function SettingsPage() {
         exportDate: new Date().toISOString(),
         // Aggiungere qui altri dati da esportare (goals, etc.)
       };
-      
+
       const dataString = JSON.stringify(userData, null, 2);
-      
+
       await Share.share({
         message: 'I tuoi dati Goals App',
         title: 'Export Dati Goals App',
         // Su iOS potresti anche aggiungere un file
       });
     } catch (error) {
-      Alert.alert('Errore', 'Impossibile esportare i dati');
+      Alert.alert('Errore', t('exportError'));
     }
   };
 
   const handleContactSupport = () => {
     Alert.alert(
-      'Contatta Supporto',
-      'Come preferisci contattarci?',
+      t('contactSupport'),
+      t('contactMethod'),
       [
-        { text: 'Annulla', style: 'cancel' },
-        { 
-          text: 'Email', 
+        { text: t('cancel'), style: 'cancel' },
+        {
+          text: 'Email',
           onPress: () => Linking.openURL('mailto:support@goalsapp.com?subject=Supporto Goals App')
         },
-        { 
-          text: 'Website', 
+        {
+          text: 'Website',
           onPress: () => Linking.openURL('https://goalsapp.com/support')
         },
       ]
@@ -114,19 +129,17 @@ export default function SettingsPage() {
   };
 
   const handleRateApp = () => {
-    // Sostituisci con il tuo app store link
     const appStoreUrl = 'https://apps.apple.com/app/your-app-id';
     const playStoreUrl = 'https://play.google.com/store/apps/details?id=your.package.name';
-    
+
     Alert.alert(
-      'Valuta l\'App',
-      'Ti piace Goals App? Lasciaci una recensione!',
+      t('rateApp'),
+      t('rateAppMsg'),
       [
-        { text: 'Forse dopo', style: 'cancel' },
-        { 
-          text: 'Valuta ora', 
+        { text: t('maybeLater'), style: 'cancel' },
+        {
+          text: t('rateNow'),
           onPress: () => {
-            // Determina quale store aprire basato sulla piattaforma
             const url = Platform.OS === 'ios' ? appStoreUrl : playStoreUrl;
             Linking.openURL(url);
           }
@@ -136,234 +149,176 @@ export default function SettingsPage() {
   };
 
   const SettingsSection = ({ title, children }: { title: string; children: React.ReactNode }) => (
-    <View className="mb-6">
-      <Text className={`text-lg font-semibold mb-3 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+    <View className="mb-2">
+      <Text className={`text-lg font-semibold mb-3 px-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
         {title}
       </Text>
-      <View className={`rounded-2xl ${isDark ? 'bg-gray-800' : 'bg-white'} shadow-sm`}>
+      <View>
         {children}
       </View>
     </View>
   );
 
-  const SettingsRow = ({ 
-    icon, 
-    title, 
-    subtitle, 
-    onPress, 
-    rightElement, 
-    isLast = false,
-    danger = false 
-  }: {
-    icon: string;
-    title: string;
-    subtitle?: string;
-    onPress?: () => void;
-    rightElement?: React.ReactNode;
-    isLast?: boolean;
-    danger?: boolean;
-  }) => (
+  const LanguageOption = ({ lang, label }: { lang: 'en' | 'it', label: string }) => (
     <TouchableOpacity
-      onPress={onPress}
-      className={`px-4 py-4 flex-row items-center ${!isLast ? 'border-b' : ''} ${
-        isDark ? 'border-gray-700' : 'border-gray-100'
-      }`}
-      disabled={!onPress}
+      onPress={() => {
+        setLanguage(lang);
+        setLanguageModalVisible(false);
+      }}
+      className={`flex-row items-center justify-between p-4 rounded-xl mb-2 ${language === lang
+        ? (isDark ? 'bg-purple-900/30 border border-purple-500/50' : 'bg-purple-50 border border-purple-200')
+        : (isDark ? 'bg-zinc-800' : 'bg-gray-50')
+        }`}
     >
-      <Text className="text-2xl mr-4">{icon}</Text>
-      <View className="flex-1">
-        <Text className={`text-base font-medium ${
-          danger 
-            ? 'text-red-500' 
-            : isDark ? 'text-white' : 'text-gray-900'
-        }`}>
-          {title}
+      <View className="flex-row items-center">
+        <Text className={`text-2xl mr-3`}>
+          {lang === 'it' ? '🇮🇹' : '🇬🇧'}
         </Text>
-        {subtitle && (
-          <Text className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-            {subtitle}
-          </Text>
-        )}
+        <Text className={`text-lg font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>
+          {label}
+        </Text>
       </View>
-      {rightElement && (
-        <View className="ml-2">
-          {rightElement}
-        </View>
-      )}
-      {onPress && !rightElement && (
-        <Text className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>›</Text>
+      {language === lang && (
+        <Check size={20} color="#7C3AED" />
       )}
     </TouchableOpacity>
   );
 
   return (
-    <SafeAreaView className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`} edges={['top']}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View className="px-6 py-6">
-          <Text className={`text-2xl font-bold mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-            Impostazioni
+    <ScreenLayout edges={['top']}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
+        <View className="px-4 py-4">
+          <Text className={`text-3xl font-bold mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+            {t('settings')}
           </Text>
 
-          {/* Account */}
-          <SettingsSection title="Account">
-            <SettingsRow
-              icon="👤"
-              title="Profilo"
-              subtitle={user?.email || 'Gestisci il tuo profilo'}
-              onPress={() => {/* Naviga al profilo */}}
-            />
-            <SettingsRow
-              icon="🔐"
-              title="Privacy & Sicurezza"
-              subtitle="Gestisci la privacy del tuo account"
-              onPress={() => {/* Naviga alle impostazioni privacy */}}
-            />
-            <SettingsRow
-              icon="☁️"
-              title="Backup & Sync"
-              subtitle="Backup automatico abilitato"
-              rightElement={
-                <Switch
-                  value={autoBackup}
-                  onValueChange={setAutoBackup}
-                  trackColor={{ false: isDark ? '#374151' : '#E5E7EB', true: '#3B82F6' }}
-                  thumbColor={autoBackup ? '#FFFFFF' : '#9CA3AF'}
-                />
-              }
-              isLast
-            />
-          </SettingsSection>
-
           {/* Preferenze App */}
-          <SettingsSection title="Preferenze App">
-            <SettingsRow
-              icon={isDark ? "🌙" : "☀️"}
-              title="Tema"
-              subtitle={`Modalità ${isDark ? 'scura' : 'chiara'} attiva`}
-              rightElement={
-                <TouchableOpacity
-                  onPress={toggleTheme}
-                  className={`px-3 py-1 rounded-full ${isDark ? 'bg-gray-600' : 'bg-gray-200'}`}
-                >
-                  <Text className="text-lg">{isDark ? "🌙" : "☀️"}</Text>
-                </TouchableOpacity>
-              }
-            />
-            <SettingsRow
-              icon="🔔"
-              title="Notifiche"
-              subtitle="Ricevi promemoria per i tuoi obiettivi"
+          <SettingsSection title={t('appPreferences')}>
+            <MenuCard
+              icon={isDark ? Moon : Sun}
+              title={t('theme')}
+              subtitle={`${isDark ? 'Dark' : 'Light'} mode active`}
               rightElement={
                 <Switch
-                  value={notificationsEnabled}
-                  onValueChange={setNotificationsEnabled}
-                  trackColor={{ false: isDark ? '#374151' : '#E5E7EB', true: '#3B82F6' }}
-                  thumbColor={notificationsEnabled ? '#FFFFFF' : '#9CA3AF'}
+                  value={isDark}
+                  onValueChange={toggleTheme}
+                  trackColor={{ false: isDark ? '#374151' : '#E5E7EB', true: '#7C3AED' }}
+                  thumbColor={Platform.OS === 'ios' ? '#FFFFFF' : (isDark ? '#FFFFFF' : '#9CA3AF')}
                 />
               }
             />
-            <SettingsRow
-              icon="👆"
-              title="Autenticazione Biometrica"
-              subtitle="Usa Face ID o impronte digitali"
-              rightElement={
-                <Switch
-                  value={biometricsEnabled}
-                  onValueChange={setBiometricsEnabled}
-                  trackColor={{ false: isDark ? '#374151' : '#E5E7EB', true: '#3B82F6' }}
-                  thumbColor={biometricsEnabled ? '#FFFFFF' : '#9CA3AF'}
-                />
-              }
-              isLast
+            <MenuCard
+              icon={Globe}
+              title={t('language')}
+              subtitle={language === 'it' ? 'Italiano' : 'English'}
+              onPress={() => setLanguageModalVisible(true)}
             />
           </SettingsSection>
 
           {/* Dati & Privacy */}
-          <SettingsSection title="Dati & Privacy">
-            <SettingsRow
-              icon="📊"
-              title="Analisi Utilizzo"
-              subtitle="Aiutaci a migliorare l'app"
-              rightElement={
-                <Switch
-                  value={analyticsEnabled}
-                  onValueChange={setAnalyticsEnabled}
-                  trackColor={{ false: isDark ? '#374151' : '#E5E7EB', true: '#3B82F6' }}
-                  thumbColor={analyticsEnabled ? '#FFFFFF' : '#9CA3AF'}
-                />
-              }
-            />
-            <SettingsRow
-              icon="📁"
-              title="Esporta Dati"
-              subtitle="Scarica tutti i tuoi dati"
+          <SettingsSection title={t('dataPrivacy')}>
+            <MenuCard
+              icon={FileText}
+              title={t('exportData')}
+              subtitle={t('exportData')}
               onPress={handleExportData}
             />
-            <SettingsRow
-              icon="🔒"
-              title="Privacy Policy"
+            <MenuCard
+              icon={Shield}
+              title={t('privacyPolicy')}
               onPress={() => Linking.openURL('https://goalsapp.com/privacy')}
             />
-            <SettingsRow
-              icon="📜"
-              title="Termini di Servizio"
+            <MenuCard
+              icon={Info}
+              title={t('termsOfService')}
               onPress={() => Linking.openURL('https://goalsapp.com/terms')}
-              isLast
             />
           </SettingsSection>
 
           {/* Supporto */}
-          <SettingsSection title="Supporto">
-            <SettingsRow
-              icon="❓"
-              title="Centro Assistenza"
-              subtitle="FAQ e guide"
+          <SettingsSection title={t('support')}>
+            <MenuCard
+              icon={HelpCircle}
+              title={t('helpCenter')}
+              subtitle="FAQ and guides"
               onPress={() => Linking.openURL('https://goalsapp.com/help')}
             />
-            <SettingsRow
-              icon="💬"
-              title="Contatta Supporto"
-              subtitle="Hai bisogno di aiuto?"
+            <MenuCard
+              icon={MessageCircle}
+              title={t('contactSupport')}
+              subtitle="Need help?"
               onPress={handleContactSupport}
             />
-            <SettingsRow
-              icon="⭐"
-              title="Valuta l'App"
-              subtitle="Lasciaci una recensione"
+            <MenuCard
+              icon={Star}
+              title={t('rateApp')}
+              subtitle="Leave us a review"
               onPress={handleRateApp}
             />
-            <SettingsRow
-              icon="ℹ️"
-              title="Informazioni"
-              subtitle="Versione 1.0.0"
-              onPress={() => Alert.alert('Goals App', 'Versione 1.0.0\nSviluppata con ❤️')}
-              isLast
+            <MenuCard
+              icon={Info}
+              title={t('about')}
+              subtitle="Version 1.0.0"
+              onPress={() => Alert.alert('Goals App', 'Version 1.0.0\nMade with ❤️')}
             />
           </SettingsSection>
 
           {/* Zona Pericolosa */}
-          <SettingsSection title="Zona Pericolosa">
-            <SettingsRow
-              icon="🚪"
-              title="Logout"
-              subtitle="Esci dal tuo account"
+          <SettingsSection title={t('dangerZone')}>
+            <MenuCard
+              icon={LogOut}
+              title={t('logout')}
+              subtitle="Sign out of your account"
               onPress={handleLogout}
               danger
             />
-            <SettingsRow
-              icon="🗑️"
-              title="Elimina Account"
-              subtitle="Elimina permanentemente il tuo account"
+            <MenuCard
+              icon={Trash2}
+              title={t('deleteAccount')}
+              subtitle="Permanently delete account"
               onPress={handleDeleteAccount}
               danger
-              isLast
             />
           </SettingsSection>
 
           {/* Spazio in fondo */}
           <View className="h-8" />
         </View>
+
+        {/* Language Selection Modal */}
+        <Modal
+          visible={isLanguageModalVisible}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setLanguageModalVisible(false)}
+        >
+          <TouchableWithoutFeedback onPress={() => setLanguageModalVisible(false)}>
+            <View className="flex-1 justify-end bg-black/50">
+              <TouchableWithoutFeedback>
+                <View className={`rounded-t-3xl p-6 ${isDark ? 'bg-zinc-900 border-t border-zinc-800' : 'bg-white'}`}>
+                  <View className="flex-row justify-between items-center mb-6">
+                    <Text className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                      {t('language')}
+                    </Text>
+                    <TouchableOpacity
+                      onPress={() => setLanguageModalVisible(false)}
+                      className="p-2 bg-gray-100 dark:bg-zinc-800 rounded-full"
+                    >
+                      <X size={20} color={isDark ? '#FFF' : '#000'} />
+                    </TouchableOpacity>
+                  </View>
+
+                  <LanguageOption lang="en" label="English" />
+                  <LanguageOption lang="it" label="Italiano" />
+
+                  <View className="h-8" />
+                </View>
+              </TouchableWithoutFeedback>
+            </View>
+          </TouchableWithoutFeedback>
+        </Modal>
+
       </ScrollView>
-    </SafeAreaView>
+    </ScreenLayout>
   );
 }

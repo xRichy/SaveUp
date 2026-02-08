@@ -1,5 +1,7 @@
 // app/(tabs)/profile.tsx
 import { Card } from '@/components/ui/Card';
+import { MenuCard } from '@/components/ui/MenuCard'; // Import MenuCard
+import { ScreenLayout } from '@/components/ui/ScreenLayout';
 import * as ImagePicker from 'expo-image-picker';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
@@ -14,24 +16,19 @@ import {
 import React, { useState } from 'react';
 import {
   Alert,
-  Dimensions,
   Image,
   ScrollView,
-  StatusBar,
   Text,
   TextInput,
   TouchableOpacity,
   View
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '../../store/auth';
 import { useThemeStore } from '../../store/theme';
 
-const { width } = Dimensions.get('window');
-
 export default function ProfileScreen() {
   const { user, updateProfile, logout } = useAuthStore();
-  const { theme, toggleTheme } = useThemeStore();
+  const { theme } = useThemeStore();
   const isDark = theme === 'dark';
 
   const [name, setName] = useState(user?.name || '');
@@ -77,7 +74,6 @@ export default function ProfileScreen() {
   };
 
   const pickImage = async () => {
-    // Richiedi permessi per accedere alla galleria
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (permissionResult.granted === false) {
@@ -99,7 +95,6 @@ export default function ProfileScreen() {
   };
 
   const takePhoto = async () => {
-    // Richiedi permessi per la fotocamera
     const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
 
     if (permissionResult.granted === false) {
@@ -146,249 +141,160 @@ export default function ProfileScreen() {
     );
   };
 
-  type MenuCardProps = {
-    icon: React.ComponentType<{ size?: number; color?: string }>;
-    title: string;
-    subtitle?: string;
-    onPress: () => void;
-    showArrow?: boolean;
-    danger?: boolean;
-  };
-
-  const MenuCard: React.FC<MenuCardProps> = ({ icon: Icon, title, subtitle, onPress, showArrow = true, danger = false }) => (
-    <TouchableOpacity
-      onPress={onPress}
-      className={`mx-1 mb-3 p-4 rounded-2xl flex-row items-center ${isDark ? 'bg-zinc-900' : 'bg-white'
-        } shadow-sm`}
-      style={{
-        shadowColor: isDark ? '#000' : '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: isDark ? 0.3 : 0.1,
-        shadowRadius: 8,
-        elevation: 3,
-      }}
-    >
-      <View className={`p-3 rounded-xl mr-4 ${danger
-        ? 'bg-red-100'
-        : isDark
-          ? 'bg-purple-900/30'
-          : 'bg-purple-100'
-        }`}>
-        <Icon
-          size={22}
-          color={
-            danger
-              ? '#EF4444'
-              : isDark
-                ? '#A855F7'
-                : '#7C3AED'
-          }
-        />
-      </View>
-
-      <View className="flex-1">
-        <Text className={`font-semibold text-base ${danger
-          ? 'text-red-600'
-          : isDark
-            ? 'text-white'
-            : 'text-gray-900'
-          }`}>
-          {title}
-        </Text>
-        {subtitle && (
-          <Text className={`text-sm mt-1 ${isDark ? 'text-gray-400' : 'text-gray-600'
-            }`}>
-            {subtitle}
-          </Text>
-        )}
-      </View>
-
-      {showArrow && (
-        <View className={`p-1 ${isDark ? 'text-gray-400' : 'text-gray-400'
-          }`}>
-          <Text className="text-lg">›</Text>
-        </View>
-      )}
-    </TouchableOpacity>
-  );
-
   return (
-    <>
-      <StatusBar
-        barStyle={isDark ? 'light-content' : 'dark-content'}
-        backgroundColor={isDark ? '#111827' : '#F9FAFB'}
-      />
+    <ScreenLayout edges={['top']}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 100 }}
+        className="px-4"
+      >
+        {/* Header con gradiente */}
+        <Card className="mt-4 mb-6 p-0 rounded-3xl overflow-hidden shadow-lg border-0">
+          <LinearGradient
+            colors={['#7C3AED', '#3B82F6']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            className="rounded-2xl p-3"
+          >
+            <View className="flex-row justify-between items-center mb-8 p-3">
+              <Text className="text-2xl font-bold text-white">My Profile</Text>
 
-      <SafeAreaView className={`flex-1 ${isDark ? "bg-black" : "bg-white"}`} edges={['top']}>
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 100 }}
-          className="px-4"
-        >
-          {/* Header con gradiente */}
-          <Card className="mt-4 mb-6 p-0 rounded-3xl overflow-hidden shadow-lg">
-            <LinearGradient
-              colors={isDark
-                ? ['#7C3AED', '#3B82F6']
-                : ['#8B5CF6', '#06B6D4']
-              }
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              className="p-6"
-            >
-              <View className="flex-row justify-between items-center mb-8 p-3">
-                <Text className="text-2xl font-bold text-white">Il Mio Profilo</Text>
-
-                {!isEditing ? (
-                  <TouchableOpacity
-                    onPress={handleStartEdit}
-                    className="bg-white/20 p-2 rounded-xl backdrop-blur-sm"
-                  >
-                    <Edit3 size={20} color="white" />
-                  </TouchableOpacity>
-                ) : (
-                  <View className="flex-row space-x-2 gap-1">
-                    <TouchableOpacity
-                      onPress={handleCancel}
-                      className="bg-red-500/80 p-2 rounded-xl"
-                    >
-                      <X size={18} color="white" />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={handleSave}
-                      className="bg-green-500/80 p-2 rounded-xl"
-                    >
-                      <Check size={18} color="white" />
-                    </TouchableOpacity>
-                  </View>
-                )}
-              </View>
-
-              {/* Avatar Section */}
-              <View className="items-center mb-3">
+              {!isEditing ? (
                 <TouchableOpacity
-                  onPress={showImageOptions}
-                  className="relative mb-4"
-                  activeOpacity={0.8}
+                  onPress={handleStartEdit}
+                  className="bg-white/20 p-2 rounded-xl backdrop-blur-sm"
                 >
-                  <View className="w-32 h-32 rounded-full overflow-hidden bg-white/20 items-center justify-center">
-                    {avatar ? (
-                      <Image
-                        source={{ uri: avatar }}
-                        className="w-full h-full rounded-full"
-                        resizeMode="cover"
-                      />
-                    ) : (
-                      <Text className="text-4xl text-white">
-                        {user?.name?.charAt(0)?.toUpperCase() || '👤'}
-                      </Text>
-                    )}
-                  </View>
-
-                  {/* Camera overlay */}
-                  <View className="absolute -bottom-2 -right-2 bg-white p-2 rounded-full shadow-lg">
-                    <Camera size={16} color="#7C3AED" />
-                  </View>
+                  <Edit3 size={20} color="white" />
                 </TouchableOpacity>
+              ) : (
+                <View className="flex-row space-x-2 gap-2">
+                  <TouchableOpacity
+                    onPress={handleCancel}
+                    className="bg-red-500/80 p-2 rounded-xl"
+                  >
+                    <X size={18} color="white" />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={handleSave}
+                    className="bg-green-500/80 p-2 rounded-xl"
+                  >
+                    <Check size={18} color="white" />
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
 
-                <Text className="text-xl font-bold text-white mb-1">
-                  {user?.name || 'Nome utente'}
-                </Text>
-                <Text className="text-purple-100 opacity-90">
-                  {user?.email || 'email@esempio.com'}
-                </Text>
-              </View>
-            </LinearGradient>
-          </Card>
-
-          {/* Form di modifica (se in modalità editing) */}
-          {isEditing && (
-            <View className="mx-4 mb-6">
-              <View className={`p-4 rounded-2xl ${isDark ? 'bg-zinc-900' : 'bg-white'
-                } shadow-sm`}>
-                <Text className={`text-lg font-semibold mb-4 ${isDark ? 'text-white' : 'text-gray-900'
-                  }`}>
-                  Modifica Profilo
-                </Text>
-
-                {/* Nome */}
-                <View className="mb-4">
-                  <Text className={`mb-2 font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'
-                    }`}>
-                    Nome
-                  </Text>
-                  <View className={`flex-row items-center border rounded-xl px-4 py-3 ${isDark
-                    ? 'bg-zinc-800 border-zinc-700'
-                    : 'bg-gray-50 border-gray-200'
-                    }`}>
-                    <User size={20} color={isDark ? '#9CA3AF' : '#6B7280'} />
-                    <TextInput
-                      value={name}
-                      onChangeText={setName}
-                      className={`ml-3 flex-1 ${isDark ? 'text-white' : 'text-gray-900'
-                        }`}
-                      placeholder="Inserisci il tuo nome"
-                      placeholderTextColor={isDark ? '#6B7280' : '#9CA3AF'}
+            {/* Avatar Section */}
+            <View className="items-center mb-3">
+              <TouchableOpacity
+                onPress={showImageOptions}
+                className="relative mb-4"
+                activeOpacity={0.8}
+              >
+                <View className="w-32 h-32 rounded-full overflow-hidden bg-white/20 items-center justify-center border-4 border-white/10">
+                  {avatar ? (
+                    <Image
+                      source={{ uri: avatar }}
+                      className="w-full h-full rounded-full"
+                      resizeMode="cover"
                     />
-                  </View>
+                  ) : (
+                    <Text className="text-4xl text-white">
+                      {user?.name?.charAt(0)?.toUpperCase() || '👤'}
+                    </Text>
+                  )}
                 </View>
 
-                {/* Email */}
-                <View className="mb-4">
-                  <Text className={`mb-2 font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'
-                    }`}>
-                    Email
-                  </Text>
-                  <View className={`flex-row items-center border rounded-xl px-4 py-3 ${isDark
-                    ? 'bg-zinc-800 border-zinc-700'
-                    : 'bg-gray-50 border-gray-200'
-                    }`}>
-                    <Mail size={20} color={isDark ? '#9CA3AF' : '#6B7280'} />
-                    <TextInput
-                      value={email}
-                      onChangeText={setEmail}
-                      keyboardType="email-address"
-                      autoCapitalize="none"
-                      className={`ml-3 flex-1 ${isDark ? 'text-white' : 'text-gray-900'
-                        }`}
-                      placeholder="Inserisci la tua email"
-                      placeholderTextColor={isDark ? '#6B7280' : '#9CA3AF'}
-                    />
-                  </View>
+                {/* Camera overlay */}
+                <View className="absolute -bottom-2 -right-2 bg-white p-2 rounded-full shadow-lg">
+                  <Camera size={16} color="#7C3AED" />
+                </View>
+              </TouchableOpacity>
+
+              <Text className="text-xl font-bold text-white mb-1">
+                {user?.name || 'Utente'}
+              </Text>
+              <Text className="text-purple-100 opacity-90">
+                {user?.email || 'email@example.com'}
+              </Text>
+            </View>
+          </LinearGradient>
+        </Card>
+
+        {/* Form di modifica (se in modalità editing) */}
+        {isEditing && (
+          <View className="mx-1 mb-6">
+            <View className={`p-4 rounded-3xl ${isDark ? 'bg-zinc-900/50' : 'bg-white'} border border-gray-100 dark:border-zinc-800`}>
+              <Text className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+                Edit Profile
+              </Text>
+
+              {/* Nome */}
+              <View className="mb-4">
+                <Text className="mb-2 font-medium text-gray-700 dark:text-gray-300">
+                  Name
+                </Text>
+                <View className={`flex-row items-center border rounded-xl px-4 py-3 ${isDark
+                  ? 'bg-zinc-800 border-zinc-700'
+                  : 'bg-gray-50 border-gray-200'
+                  }`}>
+                  <User size={20} color={isDark ? '#9CA3AF' : '#6B7280'} />
+                  <TextInput
+                    value={name}
+                    onChangeText={setName}
+                    className={`ml-3 flex-1 ${isDark ? 'text-white' : 'text-gray-900'}`}
+                    placeholder="Your Name"
+                    placeholderTextColor={isDark ? '#6B7280' : '#9CA3AF'}
+                  />
+                </View>
+              </View>
+
+              {/* Email */}
+              <View className="mb-4">
+                <Text className="mb-2 font-medium text-gray-700 dark:text-gray-300">
+                  Email
+                </Text>
+                <View className={`flex-row items-center border rounded-xl px-4 py-3 ${isDark
+                  ? 'bg-zinc-800 border-zinc-700'
+                  : 'bg-gray-50 border-gray-200'
+                  }`}>
+                  <Mail size={20} color={isDark ? '#9CA3AF' : '#6B7280'} />
+                  <TextInput
+                    value={email}
+                    onChangeText={setEmail}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    className={`ml-3 flex-1 ${isDark ? 'text-white' : 'text-gray-900'}`}
+                    placeholder="Your Email"
+                    placeholderTextColor={isDark ? '#6B7280' : '#9CA3AF'}
+                  />
                 </View>
               </View>
             </View>
-          )}
-
-
-          {/* Profile Actions */}
-          <View className="px-0 mt-3">
-            <Text className={`text-lg font-semibold mb-4 ${isDark ? 'text-white' : 'text-gray-900'
-              }`}>
-              Account
-            </Text>
-            <MenuCard
-              icon={LogOut}
-              title="Logout"
-              subtitle="Esci dal tuo account"
-              onPress={handleLogout}
-              danger={true}
-            />
           </View>
+        )}
 
-          {/* Account info */}
-          <View className={`mx-1 p-4 rounded-2xl ${isDark ? 'bg-zinc-900' : 'bg-white'
-            } shadow-sm`}>
-            <Text className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'
-              } text-center`}>
-              Account creato il {user?.createdAt ?
-                new Date(user.createdAt).toLocaleDateString('it-IT') :
-                'Data non disponibile'
-              }
-            </Text>
-          </View>
-        </ScrollView>
-      </SafeAreaView>
-    </>
+        {/* Account info */}
+        <View className="px-1 mb-4">
+          <MenuCard
+            icon={LogOut}
+            title="Logout"
+            subtitle="Sign out of your account"
+            onPress={handleLogout}
+            danger={true}
+          />
+        </View>
+
+        <View className="items-center mt-2 mb-8">
+          <Text className="text-sm text-gray-400 dark:text-gray-600">
+            Member since {user?.createdAt ?
+              new Date(user.createdAt).toLocaleDateString() :
+              'Unknown'
+            }
+          </Text>
+        </View>
+
+      </ScrollView>
+    </ScreenLayout>
   );
 }

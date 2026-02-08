@@ -1,166 +1,205 @@
 import { Card } from "@/components/ui/Card";
 import { GradientButton } from "@/components/ui/GradientButton";
 import { ProgressBar } from "@/components/ui/ProgressBar";
+import { ScreenLayout } from "@/components/ui/ScreenLayout";
 import { useGoalsState } from "@/store/goals";
+import { useLanguage } from '@/store/language';
 import { useThemeStore } from "@/store/theme";
 import { format } from "date-fns";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ChevronLeft } from "lucide-react-native";
+import { ChevronLeft, Edit2 } from "lucide-react-native";
 import React from "react";
-import { ScrollView, StatusBar, Text, TouchableOpacity, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 export default function GoalDetail() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const { goals } = useGoalsState();
   const { theme } = useThemeStore();
+  const { t } = useLanguage();
+  const isDark = theme === "dark";
 
-  const isDark = theme === 'dark';
-
-  const addFoundsToGoal = () => {
-    router.push(`/goals/add-transaction/${id}`);
-  }
-
-  const goal = goals.find((g) => g.id.toString() === id);
+  const goalId = typeof id === 'string' ? id : Array.isArray(id) ? id[0] : '';
+  const goal = goals.find((g) => g.id.toString() === goalId);
 
   if (!goal) {
     return (
-      <View className={`flex-1 items-center justify-center ${theme === "dark" ? "bg-red-900" : "bg-red-50"}`}>
-        <Text className={`text-lg font-semibold ${theme === "dark" ? "text-red-300" : "text-red-600"}`}>
-          Obiettivo non trovato
+      <ScreenLayout className="items-center justify-center">
+        <Text className="text-lg font-semibold text-red-600 dark:text-red-400">
+          {t('goalNotFound')}
         </Text>
         <TouchableOpacity
           onPress={() => router.back()}
-          className="mt-4 px-4 py-2 bg-indigo-500 rounded-xl"
+          className="mt-4 px-4 py-2 bg-indigo-500 rounded-xl flex-row items-center"
         >
-          <Text className="text-white"><ChevronLeft /> Torna indietro</Text>
+          <ChevronLeft color="white" size={20} />
+          <Text className="text-white ml-2">{t('back')}</Text>
         </TouchableOpacity>
-      </View>
+      </ScreenLayout>
     );
   }
 
   const progress = Math.min((goal.saved / goal.target) * 100, 100);
 
-  // Palette dinamica in base al tema
-  const colors = {
-    background: theme === "dark" ? "bg-black" : "bg-white",
-    text: theme === "dark" ? "text-white" : "text-black",
-    card: theme === "dark" ? "bg-zinc-900" : "bg-gray-50",
-    mutedText: theme === "dark" ? "text-gray-400" : "text-gray-500",
-    border: theme === "dark" ? "border-gray-700" : "border-gray-200",
-    goBackButton: theme === "dark" ? "white" : "black",
+  const getPriorityColors = (priority: string) => {
+    switch (priority) {
+      case 'high':
+        return {
+          container: 'bg-red-100 dark:bg-red-900/50 border border-red-200 dark:border-red-800',
+          text: 'text-red-700 dark:text-red-200',
+          label: 'text-red-600/70 dark:text-red-300/70'
+        };
+      case 'medium':
+        return {
+          container: 'bg-yellow-100 dark:bg-yellow-900/50 border border-yellow-200 dark:border-yellow-800',
+          text: 'text-yellow-800 dark:text-yellow-200',
+          label: 'text-yellow-700/70 dark:text-yellow-300/70'
+        };
+      default:
+        return {
+          container: 'bg-green-100 dark:bg-green-900/50 border border-green-200 dark:border-green-800',
+          text: 'text-green-800 dark:text-green-200',
+          label: 'text-green-700/70 dark:text-green-300/70'
+        };
+    }
   };
 
-  const priorityColors = {
-    low: theme === "dark" ? "bg-green-600 text-green-300" : "bg-green-300 text-green-700",
-    medium: theme === "dark" ? "bg-yellow-600 text-yellow-300" : "bg-yellow-300 text-yellow-700",
-    high: theme === "dark" ? "bg-red-600 text-red-300" : "bg-red-300 text-red-700",
-  };
+  const priorityStyles = getPriorityColors(goal.priority);
 
   return (
-    <>
-      <StatusBar barStyle={theme === "dark" ? "light-content" : "dark-content"} />
-      <SafeAreaView className={`flex-1 ${colors.background}`} edges={["top"]}>
-        <ScrollView contentContainerStyle={{ paddingBottom: 40 }} className="flex-1 px-6">
-          {/* Header */}
-          <View className="flex-row items-center justify-between py-4">
-            <TouchableOpacity onPress={() => router.back()}>
-              <ChevronLeft color={colors.goBackButton} size={35} />
-            </TouchableOpacity>
-            <Text className={`text-xl font-semibold ${colors.text}`}>Dettagli obiettivo</Text>
-            <View className="w-6" />
-          </View>
+    <ScreenLayout edges={['top']}>
+      <View className="flex-row items-center justify-between px-6 py-4">
+        <TouchableOpacity
+          onPress={() => router.back()}
+          className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-zinc-800"
+        >
+          <ChevronLeft size={24} className="text-gray-900 dark:text-white" color={isDark ? '#FFF' : '#111'} />
+        </TouchableOpacity>
+        <Text className="text-lg font-bold text-gray-900 dark:text-white">{t('goalDetails')}</Text>
+        <TouchableOpacity
+          onPress={() => router.push(`/goals/edit/${goalId}`)}
+          className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-zinc-800"
+        >
+          <Edit2 size={20} color={isDark ? '#FFF' : '#111'} />
+        </TouchableOpacity>
+      </View>
 
-          {/* Card principale */}
-          <Card className={`mb-6 `}>
-            <Text className={`text-8xl ${colors.text} opacity-90 mb-1 text-center p-4`}>{goal.emoji}</Text>
-            <Text className={`text-4xl font-bold ${colors.text} mb-2`}>
+      <ScrollView contentContainerStyle={{ paddingBottom: 100 }} className="flex-1 px-6">
+        {/* Card principale */}
+        <Card variant="elevated" className="mb-6 p-6 border-gray-100 dark:border-zinc-700">
+          <View className="items-center mb-4">
+            <View className="w-24 h-24 rounded-full bg-gray-50 dark:bg-zinc-800 items-center justify-center mb-4">
+              <Text className="text-5xl">{goal.emoji}</Text>
+            </View>
+            <Text className="text-3xl font-bold text-gray-900 dark:text-white text-center mb-2">
               {goal.name}
             </Text>
-            <Text className={`${colors.text} opacity-90 mb-4`}>
-              {goal.description || "Nessuna descrizione"}
+            <Text className="text-gray-500 dark:text-gray-400 text-center px-4">
+              {goal.description || t('noDescription')}
             </Text>
+          </View>
 
-            <ProgressBar progress={progress} height={14} showGlow colors={["#8B5CF6", "#6366F1"]} />
-            <Text className={`mt-3 text-sm ${colors.text} font-medium`}>
-              Risparmiati: {goal.saved}€ / {goal.target}€
+          <View className="mb-2">
+            <ProgressBar
+              progress={progress}
+              height={12}
+              className="bg-gray-100 dark:bg-zinc-700"
+              fillClassName="bg-purple-600 dark:bg-purple-500"
+            />
+          </View>
+
+          <View className="flex-row justify-between mt-2">
+            <Text className="text-gray-500 dark:text-gray-400 font-medium">
+              {t('savedLabel')}: <Text className="text-gray-900 dark:text-white font-bold">{goal.saved}€</Text>
             </Text>
-          </Card>
+            <Text className="text-gray-500 dark:text-gray-400 font-medium">
+              {t('targetLabel')}: <Text className="text-gray-900 dark:text-white font-bold">{goal.target}€</Text>
+            </Text>
+          </View>
+        </Card>
 
-          {goal.status !== 'completed' ? (
-            <View className="flex-row gap-3 mb-6">
-              <GradientButton
-                title="+ Aggiungi Fondi"
-                onPress={addFoundsToGoal}
-                className="w-full"
-              />
-            </View>
-          ) : null}
+        {goal.status !== 'completed' && (
+          <View className="mb-8">
+            <GradientButton
+              title={t('addFunds')}
+              onPress={() => router.push(`/goals/add-transaction/${id}`)}
+              className="w-full shadow-lg shadow-purple-500/30"
+            />
+          </View>
+        )}
 
-          {/* Info veloci */}
-          <View className="flex-row gap-3 mb-6">
-            <View className={`flex-1 p-4 rounded-2xl items-center ${colors.card}`}>
-              <Text className={`text-xs ${colors.mutedText}`}>Creato il</Text>
-              <Text className={`text-sm font-medium ${colors.text}`}>
-                {format(new Date(goal.createdAt), "dd MMM yyyy")}
+        {/* Info Grid */}
+        <View className="flex-row flex-wrap gap-4 mb-6">
+          <View className="flex-1 min-w-[45%] bg-white dark:bg-zinc-800 p-4 rounded-2xl border border-gray-100 dark:border-zinc-700">
+            <Text className="text-xs text-gray-400 uppercase tracking-wider mb-1">{t('created')}</Text>
+            <Text className="text-gray-900 dark:text-white font-semibold">
+              {format(new Date(goal.createdAt), "dd MMM yyyy")}
+            </Text>
+          </View>
+
+          {goal.deadline && (
+            <View className="flex-1 min-w-[45%] bg-white dark:bg-zinc-800 p-4 rounded-2xl border border-gray-100 dark:border-zinc-700">
+              <Text className="text-xs text-gray-400 uppercase tracking-wider mb-1">{t('deadline')}</Text>
+              <Text className="text-gray-900 dark:text-white font-semibold">
+                {format(new Date(goal.deadline), "dd MMM yyyy")}
               </Text>
             </View>
-            {goal.deadline && (
-              <View className={`flex-1 p-4 rounded-2xl items-center ${colors.card}`}>
-                <Text className={`text-xs ${colors.mutedText}`}>Scadenza</Text>
-                <Text className={`text-sm font-medium ${colors.text}`}>
-                  {format(new Date(goal.deadline), "dd MMM yyyy")}
-                </Text>
-              </View>
-            )}
+          )}
+
+          <View className={`flex-1 min-w-[45%] p-4 rounded-2xl ${priorityStyles.container}`}>
+            <Text className={`text-xs uppercase tracking-wider mb-1 ${priorityStyles.label}`}>{t('priority')}</Text>
+            <Text className={`font-bold capitalize ${priorityStyles.text}`}>{goal.priority}</Text>
           </View>
 
-          {/* Priorità & Stato */}
-          <View className="flex-row gap-3 mb-6">
-            <View className={`flex-1 p-4 rounded-2xl items-center ${priorityColors[goal.priority]}`}>
-              <Text className="text-xs">Priorità</Text>
-              <Text className="font-semibold capitalize">{goal.priority}</Text>
-            </View>
-            <View className={`flex-1 p-4 rounded-2xl items-center ${colors.card}`}>
-              <Text className={`text-xs ${colors.mutedText}`}>Stato</Text>
-              <Text className={`text-sm font-medium capitalize ${colors.text}`}>{goal.status}</Text>
-            </View>
+          <View className="flex-1 min-w-[45%] bg-white dark:bg-zinc-800 p-4 rounded-2xl border border-gray-100 dark:border-zinc-700">
+            <Text className="text-xs text-gray-400 uppercase tracking-wider mb-1">{t('status')}</Text>
+            <Text className="text-gray-900 dark:text-white font-semibold capitalize">{goal.status}</Text>
+          </View>
+        </View>
+
+        {/* Notes */}
+        {goal.notes ? (
+          <View className="bg-white dark:bg-zinc-800 p-4 rounded-2xl border border-gray-100 dark:border-zinc-700 mb-6">
+            <Text className="text-sm text-gray-400 mb-2 font-medium">{t('notes')}</Text>
+            <Text className="text-gray-700 dark:text-gray-300 leading-relaxed">{goal.notes}</Text>
+          </View>
+        ) : null}
+
+        {/* Transactions */}
+        <View className="bg-white dark:bg-zinc-800 rounded-3xl border border-gray-100 dark:border-zinc-700 overflow-hidden mb-6">
+          <View className="p-4 border-b border-gray-100 dark:border-zinc-700 bg-gray-50/50 dark:bg-zinc-800/50">
+            <Text className="text-lg font-bold text-gray-900 dark:text-white">{t('transactionHistory')}</Text>
           </View>
 
-          {/* Note */}
-          {goal.notes ? (
-            <View className={`p-4 rounded-2xl mb-6 ${colors.card}`}>
-              <Text className={`text-sm ${colors.mutedText} mb-1`}>Note</Text>
-              <Text className={`text-base ${colors.text}`}>{goal.notes}</Text>
-            </View>
-          ) : null}
-
-
-
-          {/* Storico transazioni */}
-          {goal.transactions.length > 0 && (
-            <View className={`p-4 rounded-2xl ${colors.card}`}>
-              <Text className={`text-sm mb-3 ${colors.mutedText}`}>Storico movimenti</Text>
-              {goal.transactions.map((t) => (
-                <View key={t.id} className={`flex-col justify-between py-2 border-b ${colors.border} last:border-0`}>
-                  <View className="w-full flex-row justify-between py-2">
-                    <Text className={`text-base ${t.amount >= 0 ? "text-green-500" : "text-red-500"}`}>
-                      {t.amount >= 0 ? `+${t.amount}€` : `${t.amount}€`}
+          {goal.transactions.length > 0 ? (
+            <View>
+              {goal.transactions.slice().reverse().map((tx, index) => (
+                <View
+                  key={tx.id}
+                  className={`p-4 flex-row justify-between items-center ${index !== goal.transactions.length - 1 ? 'border-b border-gray-100 dark:border-zinc-700' : ''
+                    }`}
+                >
+                  <View className="flex-1 mr-4">
+                    <Text className="text-gray-900 dark:text-white font-medium mb-0.5">
+                      {tx.note || t('fundAddition')}
                     </Text>
-                    <Text className={`text-sm ${colors.mutedText}`}>
-                      {format(new Date(t.date), "dd MMM")}
+                    <Text className="text-xs text-gray-400">
+                      {format(new Date(tx.date), "dd MMM yyyy, HH:mm")}
                     </Text>
                   </View>
-                  <View className="w-full">
-                    <Text className={`text-sm ${colors.text} opacity-90`}>{t.note || "Nessuna nota"}</Text>
-                  </View>
+                  <Text className={`font-bold text-lg ${tx.amount >= 0 ? "text-green-600 dark:text-green-400" : "text-red-500"}`}>
+                    {tx.amount >= 0 ? '+' : ''}{tx.amount}€
+                  </Text>
                 </View>
               ))}
             </View>
+          ) : (
+            <View className="p-8 items-center justify-center">
+              <Text className="text-gray-400 dark:text-gray-500 text-center">{t('noTransactions')}</Text>
+            </View>
           )}
-        </ScrollView>
-      </SafeAreaView>
-    </>
+        </View>
+      </ScrollView>
+    </ScreenLayout>
   );
 }

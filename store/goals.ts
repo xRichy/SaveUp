@@ -1,8 +1,8 @@
 // store/goals.ts
 
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
-import * as SecureStore from "expo-secure-store";
+import { createJSONStorage, persist } from "zustand/middleware";
 
 // Singolo movimento di denaro associato all'obiettivo
 export type GoalTransaction = {
@@ -38,6 +38,15 @@ export type GoalCategory = {
   color: string;
 };
 
+export const GOAL_CATEGORIES: GoalCategory[] = [
+  { id: "travel", name: "Viaggi", emoji: "✈️", color: "from-blue-500 to-cyan-500" },
+  { id: "tech", name: "Tecnologia", emoji: "💻", color: "from-purple-500 to-indigo-500" },
+  { id: "car", name: "Auto", emoji: "🚗", color: "from-green-500 to-emerald-500" },
+  { id: "home", name: "Casa", emoji: "🏠", color: "from-yellow-500 to-orange-500" },
+  { id: "education", name: "Formazione", emoji: "📚", color: "from-red-500 to-pink-500" },
+  { id: "other", name: "Altro", emoji: "🎯", color: "from-gray-500 to-slate-500" },
+];
+
 interface GoalsState {
   goals: Goal[];
   isLoading: boolean;
@@ -48,39 +57,39 @@ interface GoalsState {
     updated: Partial<Goal>
   ) => { success: boolean; error?: string };
   addTransaction: (
-    goalId: string | number, 
+    goalId: string | number,
     transaction: Omit<GoalTransaction, 'id'>
   ) => { success: boolean; error?: string };
   removeTransaction: (
-    goalId: string | number, 
+    goalId: string | number,
     transactionId: string
   ) => { success: boolean; error?: string };
 }
 
-// Adapter per SecureStore
-const secureStorage = {
+// Adapter per AsyncStorage
+const asyncStorage = {
   getItem: async (name: string): Promise<string | null> => {
     try {
-      return await SecureStore.getItemAsync(name);
+      return await AsyncStorage.getItem(name);
     } catch (error) {
-      console.error('Error getting item from SecureStore:', error);
+      console.error('Error getting item from AsyncStorage:', error);
       return null;
     }
   },
-  
+
   setItem: async (name: string, value: string): Promise<void> => {
     try {
-      await SecureStore.setItemAsync(name, value);
+      await AsyncStorage.setItem(name, value);
     } catch (error) {
-      console.error('Error setting item in SecureStore:', error);
+      console.error('Error setting item in AsyncStorage:', error);
     }
   },
-  
+
   removeItem: async (name: string): Promise<void> => {
     try {
-      await SecureStore.deleteItemAsync(name);
+      await AsyncStorage.removeItem(name);
     } catch (error) {
-      console.error('Error removing item from SecureStore:', error);
+      console.error('Error removing item from AsyncStorage:', error);
     }
   }
 };
@@ -181,17 +190,17 @@ export const useGoalsState = create<GoalsState>()(
           };
 
           const newSaved = goal.saved + transaction.amount;
-          
+
           set((state) => ({
             goals: state.goals.map((goal) =>
               goal.id === goalId
                 ? {
-                    ...goal,
-                    saved: newSaved,
-                    transactions: [...goal.transactions, newTransaction],
-                    updatedAt: new Date(),
-                    status: newSaved >= goal.target ? "completed" : goal.status,
-                  }
+                  ...goal,
+                  saved: newSaved,
+                  transactions: [...goal.transactions, newTransaction],
+                  updatedAt: new Date(),
+                  status: newSaved >= goal.target ? "completed" : goal.status,
+                }
                 : goal
             ),
           }));
@@ -219,14 +228,14 @@ export const useGoalsState = create<GoalsState>()(
             goals: state.goals.map((goal) =>
               goal.id === goalId
                 ? {
-                    ...goal,
-                    saved: newSaved,
-                    transactions: goal.transactions.filter((t) => t.id !== transactionId),
-                    updatedAt: new Date(),
-                    status: newSaved < goal.target && goal.status === "completed" 
-                      ? "active" 
-                      : goal.status,
-                  }
+                  ...goal,
+                  saved: newSaved,
+                  transactions: goal.transactions.filter((t) => t.id !== transactionId),
+                  updatedAt: new Date(),
+                  status: newSaved < goal.target && goal.status === "completed"
+                    ? "active"
+                    : goal.status,
+                }
                 : goal
             ),
           }));
@@ -242,8 +251,8 @@ export const useGoalsState = create<GoalsState>()(
     }),
     {
       name: 'goals-storage', // nome della chiave nel SecureStore
-      storage: createJSONStorage(() => secureStorage),
-      
+      storage: createJSONStorage(() => asyncStorage),
+
       // Persisti solo i dati importanti
       partialize: (state) => ({
         goals: state.goals,
